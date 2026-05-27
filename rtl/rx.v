@@ -45,7 +45,7 @@ always @(posedge clk) begin // rx state machine
             dataIn <= {rx, dataIn[7:1]}; // shift one bit into data in reg
             rxBitNumber <= rxBitNumber+1;
 
-            if (rxBitNumber == 3`b111) rxstate <= RX_STATE_STOP; // if on last bit, full byte has been read so stop reading
+            if (rxBitNumber == 7) rxstate <= RX_STATE_STOP; // if on last bit, full byte has been read so stop reading
             else                       rxstate <= RX_STATE_READ_WAIT; // wait to read next bit
         end
 
@@ -62,7 +62,7 @@ end
 
 always @(posedge clk) begin // filling message buffer
     if (byteReady == 1) begin
-        message[messageBitNumber:0] <= dataIn;
+        message[messageBitNumber] <= dataIn;
 
         if (messageBitNumber == 15) begin messageBitNumber <= 0; end
         else                        begin messageBitNumber <= messageBitNumber+1; end
