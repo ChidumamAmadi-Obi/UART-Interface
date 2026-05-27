@@ -3,16 +3,19 @@
 module rx(
     input wire clk,
     input wire rx,
-    output reg[MESSAGE_BUFFER_LENGTH-1:0] message
+    output reg [7:0] message [0:MESSAGE_BUFFER_LENGTH-1]
 );
 
+// rx state machine regs
 reg [3:0] rxstate = 0; 
 reg [12:0] rxcounter = 0; // counts clock pulses (eg up to 234 if 115200 baude rate)
 reg [2:0] rxBitNumber = 0; // kep track of how many bits have been read so far
 reg [7:0] dataIn = 0; // store byte received
 reg byteReady = 0; //high when byte is finished being read
 
-always @(posedge clk) begin
+reg [3:0] messageBitNumber = 0; // keeps track of what bit in buffer is being populated ( UP TO 15 )
+
+always @(posedge clk) begin // rx state machine
     case (rxstate)
         RX_STATE_IDLE: begin
             if (rx == 0) begin // if rx goes low thats the start bit
@@ -55,6 +58,15 @@ always @(posedge clk) begin
             end
         end
     endcase
+end
+
+always @(posedge clk) begin // filling message buffer
+    if (byteReady == 1) begin
+        message[messageBitNumber:0] <= dataIn;
+
+        if (messageBitNumber == 15) begin messageBitNumber <= 0; end
+        else                        begin messageBitNumber <= messageBitNumber+1; end
+    end
 end
 
 endmodule
