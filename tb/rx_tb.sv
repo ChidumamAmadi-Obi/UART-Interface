@@ -38,7 +38,7 @@ initial begin
   	sendUartChar(6);
   	sendUartChar(5);
 
-    $display("--- MESSAGE: %d %d %d %d", 
+    $display("--- MESSAGE: %d %d %d %d %d %d %d %d", 
     message_out[0],
     message_out[1],
     message_out[2],
