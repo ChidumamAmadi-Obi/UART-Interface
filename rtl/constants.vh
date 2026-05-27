@@ -10,9 +10,9 @@ localparam MESSAGE_BUFFER_LENGTH = 16; // 16 char
 
 // rx state machine
 localparam RX_STATE_IDLE = 0;
-localparam RX_STATE_START_BIT = 1;
+localparam RX_STATE_START = 1;
 localparam RX_STATE_READ_WAIT = 2;
 localparam RX_STATE_READ = 3;
-localparam RX_STATE_STOP_BIT = 4;
+localparam RX_STATE_STOP = 4;
 
 `endif
