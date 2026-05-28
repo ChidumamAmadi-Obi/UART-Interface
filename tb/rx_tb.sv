@@ -18,7 +18,7 @@ task sendUartChar( input [7:0] char );
     
     for (int i=0; i<8; i++) begin // data bits
       #(DELAY_TB) rx_in = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
-      $display("SENT: %d, BIT NO: %d, DATA IN: %b...",rx_in, rxInstance.rxBitNumber, rxInstance.dataIn);
+      $display("[MESSAGE: %d] SENT: %d, BIT NO: %d, DATA IN: %b...",char, rx_in, rxInstance.rxBitNumber, rxInstance.dataIn);
 
     end
     

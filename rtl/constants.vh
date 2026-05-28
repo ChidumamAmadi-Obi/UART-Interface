@@ -9,6 +9,7 @@ localparam DELAY_FRAMES = $floor(27000000/BAUD_RATE); //number of clock pulses n
 localparam DELAY_TB = DELAY_FRAMES*2;
 localparam HALF_DELAY_WAIT = DELAY_FRAMES/2;
 localparam MESSAGE_BUFFER_LENGTH = 16; // holds 16 chars at a time
+localparam LAST_MESSAGE_BIT_NO =MESSAGE_BUFFER_LENGTH-1;
 
 // rx state machine
 localparam RX_STATE_IDLE = 0;
@@ -16,5 +17,12 @@ localparam RX_STATE_START = 1;
 localparam RX_STATE_READ_WAIT = 2;
 localparam RX_STATE_READ = 3;
 localparam RX_STATE_STOP = 4;
+
+// tx state machine
+localparam TX_STATE_IDLE = 0;
+localparam TX_STATE_START = 1;
+localparam TX_STATE_WRITE_WAIT = 2;
+localparam TX_STATE_WRITE = 3;
+localparam TX_STATE_STOP = 4;
 
 `endif

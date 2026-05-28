@@ -3,7 +3,7 @@
 module rx (
     input wire clk,
     input wire rx,
-    output reg [7:0] message [0:MESSAGE_BUFFER_LENGTH-1]
+    output reg [7:0] messageIn [0:MESSAGE_BUFFER_LENGTH-1] // received message
 );
 
 // rx state machine regs
@@ -42,7 +42,7 @@ always @(posedge clk) begin // rx state machine
 
         RX_STATE_READ: begin 
             rxcounter <= 1; // clear counter 
-          dataIn[rxBitNumber] <= rx; // shift one bit into data in reg
+            dataIn[rxBitNumber] <= rx; // shift one bit into data in reg
             rxBitNumber <= rxBitNumber+1;
 
             if (rxBitNumber == 7) begin rxstate <= RX_STATE_STOP; end // if on last bit, full byte has been read so stop reading
@@ -56,9 +56,9 @@ always @(posedge clk) begin // rx state machine
                 rxcounter <= 0;
                 byteReady <=1;
 
-                message[messageBitNumber] <= dataIn;
-                if (messageBitNumber == 14) begin messageBitNumber <= 0; end
-                else                        begin messageBitNumber <= messageBitNumber+1; end                      
+                messageIn[messageBitNumber] <= dataIn;
+                if (messageBitNumber == LAST_MESSAGE_BIT_NO) begin messageBitNumber <= 0; end
+                else                                         begin messageBitNumber <= messageBitNumber+1; end                      
             end
         end
     endcase
