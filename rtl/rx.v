@@ -50,7 +50,7 @@ always @(posedge clk) begin // rx state machine
         end
 
         RX_STATE_STOP: begin 
-            rxcounter <= rxcounter +1;
+            rxcounter <= rxcounter+1;
             if ((rxcounter+1) == DELAY_FRAMES) begin // wait and then set byteready flag to 1
                 rxstate <= RX_STATE_IDLE;
                 rxcounter <= 0;
@@ -66,10 +66,7 @@ end
 endmodule
 
 /*NOTES
-fixed rx rtl and testbench
-    - time delay in testbench was inncorrect (must delay *2 time frames instead of 1)
-    - population of the data register 
-    - problem: last byte never not added to message buffer
+last byte never not added to message buffer
     
-    
+    fix: just needed to wait more before $finish on testbench
 */

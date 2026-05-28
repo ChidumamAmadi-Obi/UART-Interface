@@ -14,15 +14,15 @@ rx rxInstance (
 task sendUartChar( input [7:0] char );
     $display("-");
   	
-    #(WAIT_DELAY_TB) rx_in = 0; // start bit
+    #(DELAY_TB) rx_in = 0; // start bit
     
     for (int i=0; i<8; i++) begin // data bits
-      #(WAIT_DELAY_TB) rx_in = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
+      #(DELAY_TB) rx_in = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
       $display("SENT: %d, BIT NO: %d, DATA IN: %b...",rx_in, rxInstance.rxBitNumber, rxInstance.dataIn);
 
     end
     
-    #(WAIT_DELAY_TB) rx_in = 1; // stop bit
+    #(DELAY_TB) rx_in = 1; // stop bit
     $display("-");
 endtask
 
@@ -49,6 +49,6 @@ initial begin
     sendUartChar(2);
     sendUartChar(1);
 
-    #10 $finish;
+    #(DELAY_TB) $finish;
 end
 endmodule
