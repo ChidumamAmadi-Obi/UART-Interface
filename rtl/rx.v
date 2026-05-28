@@ -1,6 +1,6 @@
 `include "constants.vh"
 
-module rx(
+module rx (
     input wire clk,
     input wire rx,
     output reg [7:0] message [0:MESSAGE_BUFFER_LENGTH-1]
@@ -38,11 +38,11 @@ always @(posedge clk) begin // rx state machine
             if ((rxcounter+1) == DELAY_FRAMES) begin
                 rxstate <= RX_STATE_READ;
             end
-        end
+        end 
 
         RX_STATE_READ: begin 
             rxcounter <= 1; // clear counter 
-            dataIn <= {rx, dataIn[7:1]}; // shift one bit into data in reg
+          dataIn[rxBitNumber] <= rx; // shift one bit into data in reg
             rxBitNumber <= rxBitNumber+1;
 
             if (rxBitNumber == 7) begin rxstate <= RX_STATE_STOP; end // if on last bit, full byte has been read so stop reading
@@ -55,18 +55,21 @@ always @(posedge clk) begin // rx state machine
                 rxstate <= RX_STATE_IDLE;
                 rxcounter <= 0;
                 byteReady <=1;
+
+                message[messageBitNumber] <= dataIn;
+                if (messageBitNumber == 14) begin messageBitNumber <= 0; end
+                else                        begin messageBitNumber <= messageBitNumber+1; end                      
             end
         end
     endcase
 end
-
-always @(posedge clk) begin // filling message buffer
-    if (byteReady) begin
-        message[messageBitNumber] <= dataIn;
-
-        if (messageBitNumber == 15) begin messageBitNumber <= 0; end
-        else                        begin messageBitNumber <= messageBitNumber+1; end
-    end
-end
-
 endmodule
+
+/*NOTES
+fixed rx rtl and testbench
+    - time delay in testbench was inncorrect (must delay *2 time frames instead of 1)
+    - population of the data register 
+    - problem: last byte never not added to message buffer
+    
+    
+*/

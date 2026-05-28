@@ -5,10 +5,7 @@ module rx_tb;
 logic rx_in;
 logic clk_in;
 logic [7:0] message_out [0:MESSAGE_BUFFER_LENGTH-1];
-integer charBit;
   
-always #1 clk_in = ~clk_in;
-
 rx rxInstance (
     .clk(clk_in),
     .rx(rx_in),
@@ -16,39 +13,42 @@ rx rxInstance (
 
 task sendUartChar( input [7:0] char );
     $display("-");
-  	charBit=0;
   	
-    #10 rx_in = 0; // start bit
+    #(WAIT_DELAY_TB) rx_in = 0; // start bit
+    
     for (int i=0; i<8; i++) begin // data bits
-      #16 rx_in = (char >> charBit) & 1; //
-      charBit++;
-      $display("%d",rx_in);
+      #(WAIT_DELAY_TB) rx_in = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
+      $display("SENT: %d, BIT NO: %d, DATA IN: %b...",rx_in, rxInstance.rxBitNumber, rxInstance.dataIn);
+
     end
     
-    #16 rx_in = 1; // stop bit
+    #(WAIT_DELAY_TB) rx_in = 1; // stop bit
     $display("-");
 endtask
 
-
+always #1 clk_in = ~clk_in; // gen clk signal
 initial begin
+ 
+  $monitor("--- MESSAGE: %d %d %d %d %d %d %d %d ---", // check message buffer
+        message_out[0],
+        message_out[1],
+        message_out[2],
+        message_out[3],
+        message_out[4],
+        message_out[5],
+        message_out[6],
+        message_out[7]);  
     rx_in=1; // start idle	
-
+    clk_in=0; 
     sendUartChar(8); // send random numbers
-  	sendUartChar(7);
-  	sendUartChar(6);
-  	sendUartChar(5);
+    sendUartChar(7);
+    sendUartChar(6);
+    sendUartChar(5);
+    sendUartChar(4);
+    sendUartChar(3);
+    sendUartChar(2);
+    sendUartChar(1);
 
-    $display("--- MESSAGE: %d %d %d %d %d %d %d %d", 
-    message_out[0],
-    message_out[1],
-    message_out[2],
-    message_out[3],
-    message_out[4],
-    message_out[5],
-    message_out[6],
-    message_out[7]);
-
-    #1000 $finish;
+    #10 $finish;
 end
-
 endmodule
