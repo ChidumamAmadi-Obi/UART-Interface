@@ -2,15 +2,15 @@
 
 module tx(
     input wire clk,
-    input wire rdy,
-    input reg [7:0] message [0:MESSAGE_BUFFER_LENGTH-1],
+    input wire rdy, // signals when msg is availible
+    input reg [7:0] msg [0:MSG_BUFFER_LENGTH-1],
     output reg tx
 );
 
 reg [3:0] txstate=0;
 reg [12:0] txcounter=0;
 reg [2:0] txBitNumber=0; // bit no of byte to send
-reg [3:0] messageByteNumber=0; // byte no of message to send
+reg [3:0] msgByteNumber=0; // byte no of msg to send
 reg [7:0] dataOut=0; // send 50 for now
 reg byteSent=0;
 
@@ -28,7 +28,7 @@ always @(posedge clk) begin
             tx <= 0; // send start bit
             if ((txcounter+1) == DELAY_FRAMES) begin
                 txstate <= TX_STATE_WRITE;
-                dataOut <= message[messageByteNumber];
+                dataOut <= msg[msgByteNumber];
                 txBitNumber <= 0;
                 txcounter <= 0;
             end else begin txcounter <= txcounter +1; end
@@ -49,11 +49,11 @@ always @(posedge clk) begin
         TX_STATE_STOP: begin
             tx <= 1; // stop bit 
             if ((txcounter +1) == DELAY_FRAMES) begin
-                if (messageByteNumber == MESSAGE_BUFFER_LENGTH -1) begin // if reached last byte of message
-                    messageByteNumber <= 0;
+                if (msgByteNumber == MSG_BUFFER_LENGTH -1) begin // if reached last byte of msg
+                    msgByteNumber <= 0;
                     txstate <= TX_STATE_IDLE;
                 end else begin 
-                    messageByteNumber <= messageByteNumber+1;
+                    msgByteNumber <= msgByteNumber+1;
                     txstate <= TX_STATE_START;
                 end
                 txcounter <= 0;

@@ -8,10 +8,8 @@ localparam BAUD_RATE = 115200;
 localparam DELAY_FRAMES = $floor(27000000/BAUD_RATE); //number of clock pulses needed to reach the desired baud rate
 localparam DELAY_TB = DELAY_FRAMES*2; // delay in tb to get one uart frame
 localparam HALF_DELAY_WAIT = DELAY_FRAMES/2;
-localparam MESSAGE_BUFFER_LENGTH = 16; // holds 16 chars at a time
-localparam LAST_MESSAGE_BIT_NO =MESSAGE_BUFFER_LENGTH-1;
-
-
+localparam MSG_BUFFER_LENGTH = 16; // holds 16 chars at a time
+localparam LAST_MSG_BIT_NO =MSG_BUFFER_LENGTH-1;
 
 // rx state machine
 localparam RX_STATE_IDLE = 0;

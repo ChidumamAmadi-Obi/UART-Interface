@@ -3,7 +3,8 @@
 module rx (
     input wire clk,
     input wire rx,
-    output reg [7:0] messageIn [0:MESSAGE_BUFFER_LENGTH-1] // received message
+    output wire rdy, // signals when msg buffer is filled
+    output reg [7:0] msgOut [0:MSG_BUFFER_LENGTH-1] // received msg
 );
 
 // rx state machine regs
@@ -13,9 +14,10 @@ reg [2:0] rxBitNumber = 0; // kep track of how many bits have been read so far
 reg [7:0] dataIn = 0; // store byte received
 reg byteReady = 0; //high when byte is finished being read
 
-reg [3:0] messageBitNumber = 0; // keeps track of what bit in buffer is being populated ( UP TO 15 )
+reg [3:0] msgBitNumber = 0; // keeps track of what bit in buffer is being populated ( UP TO 15 )
 
 always @(posedge clk) begin // rx state machine
+    rdy <= 0; 
     case (rxstate)
         RX_STATE_IDLE: begin
             if (rx == 0) begin // if rx goes low thats the start bit
@@ -58,17 +60,13 @@ always @(posedge clk) begin // rx state machine
                 rxcounter <= 0;
                 byteReady <=1;
 
-                messageIn[messageBitNumber] <= dataIn;
-                if (messageBitNumber == LAST_MESSAGE_BIT_NO) begin messageBitNumber <= 0; end
-                else                                         begin messageBitNumber <= messageBitNumber+1; end                      
+                msgOut[msgBitNumber] <= dataIn;
+                if (msgBitNumber == LAST_MSG_BIT_NO) begin 
+                    msgBitNumber <= 0; 
+                    rdy=1; // set rdy flag high for one clk cycle
+                    end else begin msgBitNumber <= msgBitNumber+1; end                      
             end
         end
     endcase
 end
 endmodule
-
-/*NOTES
-last byte never not added to message buffer
-    
-    fix: just needed to wait more before $finish on testbench
-*/

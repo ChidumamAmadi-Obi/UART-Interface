@@ -4,11 +4,13 @@ module rx_tb;
 
 logic rxIn;
 logic clkIn;
+logic rdyIn;
 logic [7:0] messageOut [0:MESSAGE_BUFFER_LENGTH-1];
   
 rx rxInstance (
     .clk(clkIn),
     .rx(rxIn),
+    .rdy(rdyIn),
     .message(messageOut));
 
 task sendUartChar( input [7:0] char );
