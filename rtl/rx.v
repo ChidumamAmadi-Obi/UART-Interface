@@ -15,9 +15,10 @@ reg [7:0] dataIn = 0; // store byte received
 reg byteReady = 0; //high when byte is finished being read
 
 reg [3:0] msgBitNumber = 0; // keeps track of what bit in buffer is being populated ( UP TO 15 )
+reg rdyReg = 0;
 
 always @(posedge clk) begin // rx state machine
-    rdy <= 0; 
+    rdyReg <= 0; 
     case (rxstate)
         RX_STATE_IDLE: begin
             if (rx == 0) begin // if rx goes low thats the start bit
@@ -63,10 +64,13 @@ always @(posedge clk) begin // rx state machine
                 msgOut[msgBitNumber] <= dataIn;
                 if (msgBitNumber == LAST_MSG_BIT_NO) begin 
                     msgBitNumber <= 0; 
-                    rdy=1; // set rdy flag high for one clk cycle
+                    rdyReg <= 1; // set rdy flag high for one clk cycle
                     end else begin msgBitNumber <= msgBitNumber+1; end                      
             end
         end
     endcase
 end
+
+assign rdy = rdyReg;
+
 endmodule

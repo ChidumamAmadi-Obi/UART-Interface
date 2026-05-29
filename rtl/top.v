@@ -2,11 +2,10 @@
 `include "rx.v"
 `include "constants.vh"
 
-module uart (
+module top (
     input wire clk,
     input wire rxUart,
-    input wire txUart,
-);
+    output wire txUart);
 
 reg [7:0] msg [0:MSG_BUFFER_LENGTH-1]; // for now the fpga is just gonna echo received msg back to pc
 wire msgRdy;

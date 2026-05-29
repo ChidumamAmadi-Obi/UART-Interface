@@ -43,5 +43,6 @@ initial begin
     #1 rdyIn=0;
 
     #(DELAY_TB*MSG_BUFFER_LENGTH*10) $finish;
+    // time needed to send complete message = uart frame * number of bytes in the message * (8 + 2)
 end
 endmodule

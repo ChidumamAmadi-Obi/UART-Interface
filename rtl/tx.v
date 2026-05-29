@@ -21,6 +21,7 @@ always @(posedge clk) begin
                 txstate <= TX_STATE_START;
                 txcounter <= 0;
                 txBitNumber <= 0;
+                byteSent <= 0;
             end else begin tx <= 1; end
         end 
 
@@ -51,6 +52,7 @@ always @(posedge clk) begin
             if ((txcounter +1) == DELAY_FRAMES) begin
                 if (msgByteNumber == MSG_BUFFER_LENGTH -1) begin // if reached last byte of msg
                     msgByteNumber <= 0;
+                    byteSent <= 1;
                     txstate <= TX_STATE_IDLE;
                 end else begin 
                     msgByteNumber <= msgByteNumber+1;
