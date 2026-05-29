@@ -43,10 +43,12 @@ always @(posedge clk) begin // rx state machine
         RX_STATE_READ: begin 
             rxcounter <= 1; // clear counter 
             dataIn[rxBitNumber] <= rx; // shift one bit into data in reg
-            rxBitNumber <= rxBitNumber+1;
-
+           
             if (rxBitNumber == 7) begin rxstate <= RX_STATE_STOP; end // if on last bit, full byte has been read so stop reading
-            else                  begin rxstate <= RX_STATE_READ_WAIT; end // wait to read next bit
+            else begin 
+                rxstate <= RX_STATE_READ_WAIT;
+                rxBitNumber <= rxBitNumber+1; 
+            end // wait to read next bit
         end
 
         RX_STATE_STOP: begin 

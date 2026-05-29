@@ -2,7 +2,7 @@
 
 module tx(
     input wire clk,
-    input wire messageRdy,
+    input wire rdy,
     input reg [7:0] message [0:MESSAGE_BUFFER_LENGTH-1],
     output reg tx
 );
@@ -17,7 +17,7 @@ reg byteSent=0;
 always @(posedge clk) begin
     case (txstate)
         TX_STATE_IDLE: begin
-            if (messageRdy) begin
+            if (rdy) begin
                 txstate <= TX_STATE_START;
                 txcounter <= 0;
                 txBitNumber <= 0;
@@ -48,8 +48,9 @@ always @(posedge clk) begin
 
         TX_STATE_STOP: begin
             tx <= 1; // stop bit 
-            if ((txcounter +1) DELAY_FRAMES) begin
+            if ((txcounter +1) == DELAY_FRAMES) begin
                 if (messageByteNumber == MESSAGE_BUFFER_LENGTH -1) begin // if reached last byte of message
+                    messageByteNumber <= 0;
                     txstate <= TX_STATE_IDLE;
                 end else begin 
                     messageByteNumber <= messageByteNumber+1;
