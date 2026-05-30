@@ -4,7 +4,7 @@ module rx (
     input wire clk,
     input wire rx,
     output wire rdy, // signals when msg buffer is filled
-    output reg [`MSG_BIT_LENGTH-1:0] msgOutP); // received msg (packed)
+    output reg [`MSG_BIT_LENGTH-1:0] msgOutP); // output the received msg (packed)
 
 // rx state machine regs
 reg [3:0] rxstate = 0; 
@@ -74,7 +74,7 @@ end
 integer i;
 always @* begin // pack msg array ,combinational
     for (i=0; i < `MSG_BUFFER_LENGTH; i=i+1) begin
-        msgOutP[i*8 +: 8] = msgOut[i];
+        msgOutP[i*8 +: 8] = msgOut[i]; // populate packed array byte by byte
     end
 end
 

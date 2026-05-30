@@ -3,7 +3,7 @@
 module tx(
     input wire clk,
     input wire rdy, // signals when msg is availible
-    input wire [`MSG_BIT_LENGTH-1:0] msgOutP, // msg to send (packed)
+    input wire [`MSG_BIT_LENGTH-1:0] msgOutP, // receive msg to send out (packed)
     output reg tx);
 
 reg [3:0] txstate=0;
@@ -15,16 +15,17 @@ reg byteSent=0;
 
 reg [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1]; // store msg in unpacked array
 
-assign msgOut[0] = msgOutP[7:0];
-assign msgOut[1] = msgOutP[15:8];
-assign msgOut[2] = msgOutP[23:16];
-assign msgOut[3] = msgOutP[31:24];
-assign msgOut[4] = msgOutP[39:32];
-assign msgOut[5] = msgOutP[47:40];
-assign msgOut[6] = msgOutP[55:48];
-assign msgOut[7] = msgOutP[63:56];
-assign msgOut[8] = msgOutP[71:64];
-assign msgOut[9] =  msgOutP[79:72];
+// unpack msg buffer 
+assign msgOut[0]  = msgOutP[7:0];
+assign msgOut[1]  = msgOutP[15:8];
+assign msgOut[2]  = msgOutP[23:16];
+assign msgOut[3]  = msgOutP[31:24];
+assign msgOut[4]  = msgOutP[39:32];
+assign msgOut[5]  = msgOutP[47:40];
+assign msgOut[6]  = msgOutP[55:48];
+assign msgOut[7]  = msgOutP[63:56];
+assign msgOut[8]  = msgOutP[71:64];
+assign msgOut[9]  = msgOutP[79:72];
 assign msgOut[10] = msgOutP[87:80];
 assign msgOut[11] = msgOutP[95:88];
 assign msgOut[12] = msgOutP[103:96];
