@@ -7,7 +7,7 @@ module top (
     input wire rxUart,
     output wire txUart);
 
-reg [7:0] msg [0:MSG_BUFFER_LENGTH-1]; // for now the fpga is just gonna echo received msg back to pc
+reg [7:0] msg [0:`MSG_BUFFER_LENGTH-1]; // for now the fpga is just gonna echo received msg back to pc
 wire msgRdy;
 
 rx rxModule(
