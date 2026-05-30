@@ -5,13 +5,13 @@ module rx_tb;
 logic rxIn;
 logic clkIn;
 logic rdyIn;
-logic [`MSG_BUFFER_LENGTH-1:0] msgOut;
+logic [`MSG_BIT_LENGTH-1:0] msgIn;
   
 rx rxInstance (
     .clk(clkIn),
     .rx(rxIn),
     .rdy(rdyIn),
-    .msgOut(msgOut));
+    .msgInP(msgIn));
 
 task sendUartChar( input [7:0] char );
     #(`DELAY_TB) rxIn = 0; // start bit
@@ -28,15 +28,8 @@ endtask
 always #1 clkIn = ~clkIn; // gen clk signal
 initial begin
  
-  $monitor("--- msg: %d %d %d %d %d %d %d %d ---", // check msg buffer
-        msgOut[0],
-        msgOut[1],
-        msgOut[2],
-        msgOut[3],
-        msgOut[4],
-        msgOut[5],
-        msgOut[6],
-        msgOut[7]);  
+  $monitor("--- MSG BUFFER: %b ---", // check msg buffer
+        msgIn);  
     rxIn=1; // start idle	
     clkIn=0; 
     sendUartChar(8); // send random numbers

@@ -14,7 +14,7 @@ rx rxModule(
     .clk(clk),
     .rx(rxUart),
     .rdy(msgRdy),
-    .msgOutP(msg)); // msg received by fpga
+    .msgInP(msg)); // msg received by fpga
 
 tx txModule(
     .clk(clk),
