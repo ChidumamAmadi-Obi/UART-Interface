@@ -4,8 +4,7 @@ module rx (
     input wire clk,
     input wire rx,
     output wire rdy, // signals when msg buffer is filled
-    output reg [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1] // received msg
-);
+    output reg [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1]); // received msg
 
 // rx state machine regs
 reg [3:0] rxstate = 0; 
@@ -14,7 +13,7 @@ reg [2:0] rxBitNumber = 0; // kep track of how many bits have been read so far
 reg [7:0] dataIn = 0; // store byte received
 reg byteReady = 0; //high when byte is finished being read
 
-reg [3:0] msgBitNumber = 0; // keeps track of what bit in buffer is being populated ( UP TO 15 )
+reg [3:0] msgByteNumber = 0; // keeps track of what byte in buffer is being populated ( UP TO 15 )
 reg rdyReg = 0;
 
 always @(posedge clk) begin // rx state machine
@@ -61,16 +60,17 @@ always @(posedge clk) begin // rx state machine
                 rxcounter <= 0;
                 byteReady <=1;
 
-                msgOut[msgBitNumber] <= dataIn;
-                if (msgBitNumber == `LAST_MSG_BIT_NO) begin 
-                    msgBitNumber <= 0; 
+                msgOut[msgByteNumber] <= dataIn;
+                if (msgByteNumber == `LAST_MSG_BIT_NO) begin 
+                    msgByteNumber <= 0; 
                     rdyReg <= 1; // set rdy flag high for one clk cycle
-                    end else begin msgBitNumber <= msgBitNumber+1; end                      
+                    end else begin msgByteNumber <= msgByteNumber+1; end                      
             end
         end
     endcase
 end
 
 assign rdy = rdyReg;
+
 
 endmodule

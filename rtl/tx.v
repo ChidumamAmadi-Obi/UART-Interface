@@ -3,7 +3,7 @@
 module tx(
     input wire clk,
     input wire rdy, // signals when msg is availible
-    input wire [7:0] msg [0:`MSG_BUFFER_LENGTH-1],
+    input wire [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1],
     output reg tx);
 
 reg [3:0] txstate=0;
@@ -28,7 +28,7 @@ always @(posedge clk) begin
             tx <= 0; // send start bit
             if ((txcounter+1) == `DELAY_FRAMES) begin
                 txstate <= `TX_STATE_WRITE;
-                dataOut <= msg[msgByteNumber];
+                dataOut <= msgOut[msgByteNumber];
                 txBitNumber <= 0;
                 txcounter <= 0;
             end else begin txcounter <= txcounter +1; end

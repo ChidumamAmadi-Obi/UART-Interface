@@ -12,13 +12,13 @@ top topInstance (
     .txUart(txOut));
 
 task sendUartChar( input [7:0] char );
-    #(DELAY_TB) rxIn = 0; // start bit
+    #(`DELAY_TB) rxIn = 0; // start bit
     
     for (int i=0; i<8; i++) begin // data bits
-      #(DELAY_TB) rxIn = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
+      #(`DELAY_TB) rxIn = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
     end
     
-    #(DELAY_TB) rxIn = 1; // stop bit
+    #(`DELAY_TB) rxIn = 1; // stop bit
 endtask
 
 always #1 clkIn = ~clkIn;
@@ -48,6 +48,6 @@ initial begin
     sendUartChar(0); // 14
     sendUartChar(255); // 15
 
-  #(DELAY_TB*200) $finish;
+  #(`DELAY_TB*200) $finish;
 end
 endmodule

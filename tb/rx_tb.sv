@@ -5,7 +5,7 @@ module rx_tb;
 logic rxIn;
 logic clkIn;
 logic rdyIn;
-logic [7:0] msgOut [0:MSG_BUFFER_LENGTH-1];
+logic [`MSG_BUFFER_LENGTH-1:0] msgOut;
   
 rx rxInstance (
     .clk(clkIn),
@@ -14,14 +14,14 @@ rx rxInstance (
     .msgOut(msgOut));
 
 task sendUartChar( input [7:0] char );
-    #(DELAY_TB) rxIn = 0; // start bit
+    #(`DELAY_TB) rxIn = 0; // start bit
     
     for (int i=0; i<8; i++) begin // data bits
-      #(DELAY_TB) rxIn = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
+      #(`DELAY_TB) rxIn = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
       $display("[msg: %d] SENT: %d, BIT NO: %d, DATA IN: %b...",char, rxIn, rxInstance.rxBitNumber, rxInstance.dataIn);
 
     end
-    #(DELAY_TB) rxIn = 1; // stop bit
+    #(`DELAY_TB) rxIn = 1; // stop bit
 
 endtask
 
@@ -48,6 +48,6 @@ initial begin
     sendUartChar(2);
     sendUartChar(1);
 
-    #(DELAY_TB) $finish;
+    #(`DELAY_TB) $finish;
 end
 endmodule
