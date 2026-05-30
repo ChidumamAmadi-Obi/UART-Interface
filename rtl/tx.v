@@ -3,7 +3,7 @@
 module tx(
     input wire clk,
     input wire rdy, // signals when msg is availible
-    input wire [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1],
+    input wire [`MSG_BIT_LENGTH-1:0] msgOutP, // msg to send (packed)
     output reg tx);
 
 reg [3:0] txstate=0;
@@ -12,6 +12,15 @@ reg [2:0] txBitNumber=0; // bit no of byte to send
 reg [3:0] msgByteNumber=0; // byte no of msg to send
 reg [7:0] dataOut=0; // send 50 for now
 reg byteSent=0;
+
+reg [7:0] msgOut [0:`MSG_BUFFER_LENGTH-1]; // store msg in unpacked array
+
+integer i;
+always @* begin
+    for (i=0; i < `MSG_BUFFER_LENGTH; i=i+1) begin
+        msgOutP[i*8 +: 8] = msgOut[i];
+    end
+end
 
 always @(posedge clk) begin
     case (txstate)

@@ -1,0 +1,5 @@
+.vscode/
+*.vvp
+*.fs
+*.json
+NOTES.md
