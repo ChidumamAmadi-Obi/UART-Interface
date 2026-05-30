@@ -1,4 +1,6 @@
 `include "constants.vh"
+//`include "tx.v" // add if using testbench
+//`include "rx.v"
 
 module top (
     input wire clk,
