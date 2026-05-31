@@ -1,4 +1,4 @@
-`include "constants.vh"
+`include "tb_config.svh"
 
 module rx_tb;
 
@@ -13,18 +13,6 @@ rx rxInstance (
     .rdy(rdyIn),
     .msgInP(msgIn));
 
-task sendUartChar( input [7:0] char );
-    #(`DELAY_TB) rxIn = 0; // start bit
-    
-    for (int i=0; i<8; i++) begin // data bits
-      #(`DELAY_TB) rxIn = (char >> i) & 1; // send each bit thats set in the byte (eg 5 -> 00000101)
-      $display("[msg: %d] SENT: %d, BIT NO: %d, DATA IN: %b...",char, rxIn, rxInstance.rxBitNumber, rxInstance.dataIn);
-
-    end
-    #(`DELAY_TB) rxIn = 1; // stop bit
-
-endtask
-
 always #1 clkIn = ~clkIn; // gen clk signal
 initial begin
  
@@ -32,14 +20,14 @@ initial begin
         msgIn);  
     rxIn=1; // start idle	
     clkIn=0; 
-    sendUartChar(8); // send random numbers
-    sendUartChar(7);
-    sendUartChar(6);
-    sendUartChar(5);
-    sendUartChar(4);
-    sendUartChar(3);
-    sendUartChar(2);
-    sendUartChar(1);
+    sendUartByte(8, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn); // send random numbers
+    sendUartByte(7, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(6, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(5, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(4, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(3, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(2, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
+    sendUartByte(1, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
 
     #(`DELAY_TB) $finish;
 end
