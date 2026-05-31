@@ -14,6 +14,32 @@ rx rxInstance (
     .rdy(rdyIn),
     .msgInP(msgIn));
 
+task rxAutoRndmTest(); // automatically checks tests and gives report
+    logic [`NO_OF_RX_TESTS-1:0] failedTests = '{ default : 0 };
+    integer noOfFailed=0;
+    integer testNo=0;
+
+    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin
+        sendMsgRndm(
+            rxInstance.rxBitNumber,
+            expMsgIn,
+            rxIn);     
+         #(`DELAY_TB); // wait until last uart frame before checking buffer
+        if (expMsgIn != msgIn) failedTests |= 1 << i;
+    end
+
+    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin 
+        if ( (failedTests >> i) & 1 ) begin // if bit is set that means that test failed
+            $display("TEST NO: %d FAILED", i);
+            noOfFailed++;
+        end
+    end
+
+    if (noOfFailed > 0) $display("=== FAILED %d TESTS(S) ===", noOfFailed);
+    else                $display("=== PASSED ALL TESTS! ===");
+    
+endtask
+
 always #1 clkIn = ~clkIn; // gen clk signal
 initial begin
     if (`SEE_RX_TEST_OUTPUTS) $monitor("--- ACTUAL MSG BUFFER:   0x%H ---", msgIn); // check msg buffer
@@ -21,18 +47,7 @@ initial begin
     rxIn=1; // start idle	
     clkIn=0; 
 
-    sendMsgRndm(
-        rxInstance.rxBitNumber,
-        expMsgIn,
-        rxIn);
-
-    #(`DELAY_TB); // wait until last uart frame before checking buffer
-
-    if (expMsgIn != msgIn) begin
-        $display("TEST FAILED");
-    end else begin
-        $display("TEST PASSED!!");
-    end
+    rxAutoRndmTest();
 
     $finish;
 end

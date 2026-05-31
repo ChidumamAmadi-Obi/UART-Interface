@@ -4,9 +4,11 @@
 `include "constants.vh"
 
 // tb macros
-`define SEE_RX_TEST_OUTPUTS 1
+`define SEE_RX_TEST_OUTPUTS 0
 `define SEE_TX_TEST_OUTPUTS 0
 `define SEE_TOP_TEST_OUTPUTS 0
+
+`define NO_OF_RX_TESTS 5
 
 // enums
 
@@ -23,7 +25,6 @@ task sendUartByte( // send one byte via uart
       if (`SEE_RX_TEST_OUTPUTS) $display("SENT: %d, BIT NO: %d...", rx, i);
     end
     #(`DELAY_TB) rx = 1; // stop bit  
-    
 endtask
 
 task sendMsgRndm( // sends whole msg with random numbers and records expected msg buffer value
@@ -42,7 +43,6 @@ task sendMsgRndm( // sends whole msg with random numbers and records expected ms
 
     if (`SEE_RX_TEST_OUTPUTS) $display("--- EXPECTED MSG BUFFER: 0x%H ---",
         expectedMsgBuffer);  
-
 endtask
 
 task receiveUartByte(
