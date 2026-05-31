@@ -7,7 +7,7 @@
 `define DELAY_FRAMES (27000000/`BAUD_RATE) //number of clock pulses needed to reach the desired baud rate
 `define DELAY_TB `DELAY_FRAMES*2 // delay in tb to get one uart frame
 `define HALF_DELAY_WAIT `DELAY_FRAMES/2
-`define MSG_BUFFER_LENGTH 16 // holds 16 chars at a time
+`define MSG_BUFFER_LENGTH 16 // holds 16 chars/bytes at a time
 `define MSG_BIT_LENGTH `MSG_BUFFER_LENGTH*8
 
 // rx state machine
