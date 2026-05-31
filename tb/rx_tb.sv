@@ -6,7 +6,8 @@ logic rxIn;
 logic clkIn;
 logic rdyIn;
 logic [`MSG_BIT_LENGTH-1:0] msgIn;
-  
+logic [`MSG_BIT_LENGTH-1:0] expMsgIn;
+
 rx rxInstance (
     .clk(clkIn),
     .rx(rxIn),
@@ -15,20 +16,24 @@ rx rxInstance (
 
 always #1 clkIn = ~clkIn; // gen clk signal
 initial begin
- 
-  $monitor("--- MSG BUFFER: %b ---", // check msg buffer
-        msgIn);  
+    if (`SEE_RX_TEST_OUTPUTS) $monitor("--- ACTUAL MSG BUFFER:   0x%H ---", msgIn); // check msg buffer
+        
     rxIn=1; // start idle	
     clkIn=0; 
-    sendUartByte(8, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn); // send random numbers
-    sendUartByte(7, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(6, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(5, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(4, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(3, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(2, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
-    sendUartByte(1, rxInstance.rxBitNumber, rxInstance.dataIn, rxIn);
 
-    #(`DELAY_TB) $finish;
+    sendMsgRndm(
+        rxInstance.rxBitNumber,
+        expMsgIn,
+        rxIn);
+
+    #(`DELAY_TB); // wait until last uart frame before checking buffer
+
+    if (expMsgIn != msgIn) begin
+        $display("TEST FAILED");
+    end else begin
+        $display("TEST PASSED!!");
+    end
+
+    $finish;
 end
 endmodule
