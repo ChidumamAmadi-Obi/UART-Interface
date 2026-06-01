@@ -1,4 +1,4 @@
-
+# makefile to do stuff with verilator easier
 
 # debug flags
 RTL_DEBUG_FLAGS ?= -Wno-WIDTHEXPAND
@@ -21,6 +21,21 @@ TX_TB_EXEC = ./$(OBJ_DIR)/Vtx_tb
 RX_TB_EXEC = ./$(OBJ_DIR)/Vrx_tb
 
 # ***************************************************************************************************
+
+help: # shows message
+	@echo
+	@echo --- MAKEFILE TARGETS:
+	@echo 	
+	@echo ---   lint-rtl-top
+	@echo --- 	lint-rtl-tx
+	@echo --- 	lint-rtl-rx
+	@echo 	
+	@echo --- 	run-tb-top
+	@echo --- 	run-tb-tx
+	@echo --- 	run-tb-rx
+	@echo 	
+	@echo --- 	clean
+	@echo
 
 # lint only rtl modules
 lint-rtl-top:

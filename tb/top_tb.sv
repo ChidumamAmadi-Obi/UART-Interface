@@ -39,6 +39,6 @@ initial begin
     sendUartByte(0, topInstance.rxInstance.rxBitNumber, topInstance.rxInstance.dataIn, rxIn); // 14
     sendUartByte(250, topInstance.rxInstance.rxBitNumber, topInstance.rxInstance.dataIn, rxIn); // 15
 
-    #(`DELAY_TB*200) $finish;
+    #(`DELAY_FRAMES_TB*200) $finish;
 end
 endmodule
