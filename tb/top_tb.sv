@@ -13,7 +13,7 @@ top topInstance (
 
 always #1 clkIn = ~clkIn;
 initial begin
-  $monitor("TX: %d, TX_BIT_NO: %d, MSG_BYTE: %d",
+    $monitor("TX: %d, TX_BIT_NO: %d, MSG_BYTE: %d",
         txOut, 
         topInstance.txModule.txBitNumber,
         topInstance.txModule.msgByteNumber);
@@ -39,6 +39,6 @@ initial begin
     sendUartByte(0, topInstance.rxInstance.rxBitNumber, topInstance.rxInstance.dataIn, rxIn); // 14
     sendUartByte(250, topInstance.rxInstance.rxBitNumber, topInstance.rxInstance.dataIn, rxIn); // 15
 
-  #(`DELAY_TB*200) $finish;
+    #(`DELAY_TB*200) $finish;
 end
 endmodule

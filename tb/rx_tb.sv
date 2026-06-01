@@ -6,7 +6,7 @@ logic rxIn;
 logic clkIn;
 logic rdyIn;
 logic [`MSG_BIT_LENGTH-1:0] msgIn;
-logic [`MSG_BIT_LENGTH-1:0] expMsgIn;
+logic [`MSG_BIT_LENGTH-1:0] expMsgIn; // expected msg received
 
 rx rxInstance (
     .clk(clkIn),
@@ -19,25 +19,25 @@ task rxAutoRndmTest(); // automatically checks tests and gives report
     integer noOfFailed=0;
     integer testNo=0;
 
-    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin
+    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin // checks expected val against actual val
         sendMsgRndm(
             rxInstance.rxBitNumber,
             expMsgIn,
             rxIn);     
-         #(`DELAY_TB); // wait until last uart frame before checking buffer
-        if (expMsgIn != msgIn) failedTests |= 1 << i;
+         #(`DELAY_FRAMES_TB); // wait until last uart frame before checking buffer
+        if (expMsgIn != msgIn) failedTests |= 1 << i; // uses bitmask to track pass/fail of test
     end
 
-    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin 
+    for (int i=0; i<`NO_OF_RX_TESTS; i++) begin  // checks each test to see pass fail
         if ( (failedTests >> i) & 1 ) begin // if bit is set that means that test failed
-            $display("TEST NO: %d FAILED", i);
+            $display("TEST NO: %d FAILED...", i);
             noOfFailed++;
         end
     end
-
-    if (noOfFailed > 0) $display("=== FAILED %d TESTS(S) ===", noOfFailed);
-    else                $display("=== PASSED ALL TESTS! ===");
-    
+                        $display("==========================");
+    if (noOfFailed > 0) $display("=== FAILED %d TESTS(S) ===", noOfFailed); // reports on if tb passed/failed
+    else                $display("=== PASSED ALL TESTS!  ===");
+                        $display("==========================");
 endtask
 
 always #1 clkIn = ~clkIn; // gen clk signal

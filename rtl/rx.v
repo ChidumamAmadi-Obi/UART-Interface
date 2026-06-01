@@ -30,7 +30,7 @@ always @(posedge clk) begin // rx state machine
         end
 
         `RX_STATE_START: begin // START BIT DETECTED
-                if (rxcounter == `HALF_DELAY_WAIT) begin // if in the middle of reading a uart bit
+                if (rxcounter == `HALF_DELAY_FRAMES) begin // if in the middle of reading a uart bit
                     rxstate <= `RX_STATE_READ_WAIT;
                     rxcounter <= 1;
             end else begin rxcounter <= rxcounter + 1; end 

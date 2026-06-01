@@ -6,6 +6,7 @@ logic rdyIn;
 logic clkIn;
 logic txOut;
 logic [`MSG_BIT_LENGTH-1:0] msgOut; // store full  msg
+logic [`MSG_BIT_LENGTH-1:0] expMsg; 
 
 tx txInstance(
     .clk(clkIn),
@@ -33,9 +34,9 @@ initial begin
     #1 rdyIn=1; 
     #1 rdyIn=0;    
 
-    $display("-- FULL MSG: %b --", msgOut);
+    $display("-- FULL MSG: 0x%0H --", msgOut);
 
-    #(`DELAY_TB*`MSG_BUFFER_LENGTH*10) $finish;
+    #(`DELAY_FRAMES_TB*`MSG_BUFFER_LENGTH*10) $finish;
     // time needed to send complete message = uart frame * number of bytes in the message * (8 + 2)
 end
 endmodule
