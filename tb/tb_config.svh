@@ -3,7 +3,7 @@
 
 `include "constants.vh"
 
-// TB MACROS ****************************************************************************************************
+// TB MACROS AND CONSTANTS ****************************************************************************************************
 `define SEE_RX_TEST_OUTPUTS 0 // config test logging (test reports are always printed this is for extra detail)
 `define SEE_TX_TEST_OUTPUTS 0
 `define SEE_TOP_TEST_OUTPUTS 0
@@ -11,12 +11,11 @@
 `define NO_OF_RX_TESTS 5 // config number of random tests to be done for each module
 `define NO_OF_TX_TESTS 5
 
-`define DELAY_FRAMES_TB `DELAY_FRAMES*2 // delay in tb to get one uart frame
+`define DELAY_FRAMES_TB (`DELAY_FRAMES*2) // delay in tb to get one uart frame
 `define HALF_DELAY_FRAMES_TB `DELAY_FRAMES
 
-
 // TASKS ****************************************************************************************************
-task waitFrames(input integer frames);
+task waitFrames( input integer frames, ref logic clk );
 	repeat (frames) begin
 		@(posedge clk);
 	end
@@ -40,7 +39,6 @@ task sendMsgRndm( // sends whole msg with random numbers and records expected ms
   ref logic rx);
 
     logic [7:0] byteIn=0; // store byte to be sent
-    logic [`MSG_BIT_LENGTH-1:0] expectedMsgBuffer = '{ default : 0 };
 
     for (int i=0; i<`MSG_BUFFER_LENGTH; i++) begin
         byteIn = $urandom_range(255,0); // send random byte
@@ -53,22 +51,27 @@ task sendMsgRndm( // sends whole msg with random numbers and records expected ms
 endtask
 
 task genRndmMsg( // put random bytes in msg buffer
-  ref logic [`MSG_BIT_LENGTH-1:0] msg
+  ref logic [`MSG_BIT_LENGTH-1:0] msg,
   ref logic rdy);
 
-    msg = $urandom_range($pow(2,`MSG_BIT_LENGTH),0);
+	for (int i=0; i<`MSG_BUFFER_LENGTH; i++) begin
+		msg[8*i +: 8] = $urandom_range(255,0);
+	end
+	
     #1 rdy=1;
     #1 rdy=0;
+
+	$display("-- FULL MSG: 0x%0H --", msg);
 endtask
-task receiveUartByte( input logic rx );  
+task receiveUartByte( input logic rx, ref logic clk );  
   logic [7:0] receivedByte=0; // start counting at first bit
     if ( rx == 0 ) begin
-		waitFrames(`DELAY_FRAMES_TB); // wait until after start bit 
+		waitFrames(`DELAY_FRAMES_TB,clk); // wait until after start bit 
 		for ( int i=0; i<8; i++) begin
-			waitFrames(`HALF_DELAY_FRAMES_TB); // wait until in the middle of data bit to read it
+			waitFrames(`HALF_DELAY_FRAMES_TB,clk); // wait until in the middle of data bit to read it
 			receivedByte[i] = rx; // populate byte bit by bit
 		end
-		wait(`DELAY_FRAMES_TB); // wait until stop bit finished
+		waitFrames(`DELAY_FRAMES_TB,clk); // wait until stop bit finished
     end
 endtask
 task receiveUartMsg(

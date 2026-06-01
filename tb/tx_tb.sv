@@ -6,13 +6,17 @@ logic rdyIn;
 logic clkIn;
 logic txOut;
 logic [`MSG_BIT_LENGTH-1:0] msgOut; // store full  msg
-logic [`MSG_BIT_LENGTH-1:0] expMsg; 
+logic [`MSG_BIT_LENGTH-1:0] expMsg; // expected message out
 
 tx txInstance(
     .clk(clkIn),
     .rdy(rdyIn),
     .msgOutP(msgOut),
     .tx(txOut));
+
+task txAutoRndmTest();
+    
+endtask 
 
 always #1 clkIn = ~clkIn;
 initial begin
@@ -26,15 +30,7 @@ initial begin
     rdyIn=0;
     msgOut = '{ default : 0 }; // init buffer with zeros
 
-    msgOut[0*8 +: 8] = 8; // load random numbers into msg buffer
-    msgOut[6*8 +: 8] = 20;
-    msgOut[7*8 +: 8] = 90;
-    msgOut[15*8 +: 8] = 200;
-
-    #1 rdyIn=1; 
-    #1 rdyIn=0;    
-
-    $display("-- FULL MSG: 0x%0H --", msgOut);
+    genRndmMsg(msgOut, rdyIn); // generate random msg in buffer
 
     #(`DELAY_FRAMES_TB*`MSG_BUFFER_LENGTH*10) $finish;
     // time needed to send complete message = uart frame * number of bytes in the message * (8 + 2)
