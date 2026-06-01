@@ -10,13 +10,13 @@ module top (
 wire [`MSG_BIT_LENGTH-1:0] msg; // for now the fpga is just gonna echo received msg back to pc
 wire msgRdy;
 
-rx rxModule(
+rx_uart rxModule(
     .clk(clk),
     .rx(rxUart),
     .rdy(msgRdy),
     .msgInP(msg)); // msg received by fpga
 
-tx txModule(
+tx_uart txModule(
     .clk(clk),
     .rdy(msgRdy),
     .tx(txUart),

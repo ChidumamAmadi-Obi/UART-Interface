@@ -1,5 +1,8 @@
 // tang nano uart guide https://learn.lushaylabs.com/tang-nano-9k-debugging/
 // https://stackoverflow.com/questions/79551528/in-a-testbench-is-there-a-way-to-see-the-internal-declared-regs-wires-of-a-modu
+// https://cal-poly-ramp.github.io/_static/pdf/tools/verilator-guide.pdf
+
+
 `ifndef _CONSTANTS_
 `define _CONSTANTS_
 

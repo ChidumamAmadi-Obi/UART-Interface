@@ -10,6 +10,7 @@
 
 `define NO_OF_RX_TESTS 5 // config number of random tests to be done for each module
 `define NO_OF_TX_TESTS 5
+`define NO_OF_TOP_TESTS 5
 
 `define DELAY_FRAMES_TB (`DELAY_FRAMES*2) // delay in tb to get one uart frame
 `define HALF_DELAY_FRAMES_TB `DELAY_FRAMES
@@ -38,7 +39,7 @@ task sendMsgRndm( // sends whole msg with random numbers and records expected ms
   output logic [`MSG_BIT_LENGTH-1:0] expectedMsgBuffer,
   ref logic rx);
 
-    logic [7:0] byteIn=0; // store byte to be sent
+    static logic [7:0] byteIn=0; // store byte to be sent
 
     for (int i=0; i<`MSG_BUFFER_LENGTH; i++) begin
         byteIn = $urandom_range(255,0); // send random byte
@@ -61,22 +62,37 @@ task genRndmMsg( // put random bytes in msg buffer
     #1 rdy=1;
     #1 rdy=0;
 
-	$display("-- FULL MSG: 0x%0H --", msg);
+	// $display("-- FULL MSG: 0x%0H --", msg);
 endtask
-task receiveUartByte( input logic rx, ref logic clk );  
-  logic [7:0] receivedByte=0; // start counting at first bit
-    if ( rx == 0 ) begin
-		waitFrames(`DELAY_FRAMES_TB,clk); // wait until after start bit 
+task receiveUartByte( 
+  input logic tx,
+  output logic [7:0] receivedByte, 
+  ref logic clk );  
+
+    if ( tx == 0 ) begin
+		waitFrames(`HALF_DELAY_FRAMES_TB*3,clk); // wait until after start bit 
 		for ( int i=0; i<8; i++) begin
-			waitFrames(`HALF_DELAY_FRAMES_TB,clk); // wait until in the middle of data bit to read it
-			receivedByte[i] = rx; // populate byte bit by bit
+			receivedByte[i] = tx; // populate byte bit by bit
+			waitFrames(`HALF_DELAY_FRAMES_TB,clk); // wait until in the middle of next data bit 
+			$display("--- tx: %d ---",tx);
 		end
-		waitFrames(`DELAY_FRAMES_TB,clk); // wait until stop bit finished
+		waitFrames(`DELAY_FRAMES_TB*3,clk); // wait until stop bit finished
     end
 endtask
-task receiveUartMsg(
+task receiveUartMsg( // get what message should be and store
+  input logic tx,
+  output logic [`MSG_BIT_LENGTH-1:0] expectedMsgViaTx,
+  ref logic clk);
 
-);
+	static logic [7:0] receivedByte=0;
+
+	for (int i=0; i< `MSG_BUFFER_LENGTH; i++) begin
+		receiveUartByte (tx, receivedByte, clk); // get byte sent
+
+		expectedMsgViaTx[8*i +: 8] = receivedByte;
+	end	
+
+	// $display("--- ACTUAL MSG: 0x%0H ---",expectedMsgViaTx);
 endtask
 
 `endif

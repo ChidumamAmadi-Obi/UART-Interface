@@ -8,13 +8,13 @@ logic rdyIn;
 logic [`MSG_BIT_LENGTH-1:0] msgIn;
 logic [`MSG_BIT_LENGTH-1:0] expMsgIn; // expected msg received
 
-rx rxInstance (
+rx_uart rxInstance (
     .clk(clkIn),
     .rx(rxIn),
     .rdy(rdyIn),
     .msgInP(msgIn));
 
-task rxAutoRndmTest(); // automatically checks tests and gives report
+task static rxAutoRndmTest(); // automatically checks tests and gives report
     logic [`NO_OF_RX_TESTS-1:0] failedTests = '{ default : 0 };
     integer noOfFailed=0;
     integer testNo=0;

@@ -1,6 +1,6 @@
 `include "constants.vh"
 
-module tx(
+module tx_uart (
     input wire clk,
     input wire rdy, // signals when msg is availible
     input wire [`MSG_BIT_LENGTH-1:0] msgOutP, // receive msg to send out (packed)

@@ -1,4 +1,5 @@
 .vscode/
+obj_dir/
 *.vvp
 *.fs
 *.json

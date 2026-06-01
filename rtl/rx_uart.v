@@ -1,6 +1,6 @@
 `include "constants.vh"
 
-module rx (
+module rx_uart (
     input wire clk,
     input wire rx,
     output wire rdy, // signals when msg buffer is filled
