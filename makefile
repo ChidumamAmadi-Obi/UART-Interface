@@ -1,8 +1,8 @@
 # makefile to do stuff with verilator easier
 
 # debug flags
-RTL_DEBUG_FLAGS ?= -Wno-WIDTHEXPAND
-TB_DEBUG_FLAGS ?=  $(RTL_DEBUG_FLAGS) -Wno-WIDTHTRUNC
+RTL_DISABLE_WARNING ?= -Wno-WIDTHEXPAND
+TB_DISABLE_WARNING ?=  $(RTL_DISABLE_WARNING) -Wno-WIDTHTRUNC
 
 #directories
 RTL_DIR = rtl
@@ -21,39 +21,34 @@ TX_TB_EXEC = ./$(OBJ_DIR)/Vtx_tb
 RX_TB_EXEC = ./$(OBJ_DIR)/Vrx_tb
 
 # ***************************************************************************************************
-
 help: # shows message
-	@echo
-	@echo --- MAKEFILE TARGETS:
-	@echo 	
-	@echo ---   lint-rtl-top
-	@echo --- 	lint-rtl-tx
-	@echo --- 	lint-rtl-rx
-	@echo 	
-	@echo --- 	run-tb-top
-	@echo --- 	run-tb-tx
-	@echo --- 	run-tb-rx
-	@echo 	
-	@echo --- 	clean
-	@echo
+	@echo  MAKEFILE TARGETS:
+	@echo  - lint-rtl-top
+	@echo  - lint-rtl-tx
+	@echo  - lint-rtl-rx
+	@echo  - run-tb-top
+	@echo  - run-tb-tx
+	@echo  - run-tb-rx
+	@echo  - clean
+	@echo  - help
 
 # lint only rtl modules
 lint-rtl-top:
-	verilator --lint-only -I$(RTL_DIR) $(RTL_DEBUG_FLAGS) $(RTL_DIR)/top.v --top top
+	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/top.v --top top
 lint-rtl-rx:
-	verilator --lint-only -I$(RTL_DIR) $(RTL_DEBUG_FLAGS) $(RTL_DIR)/rx_uart.v --top rx_uart
+	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/rx_uart.v --top rx_uart
 lint-rtl-tx:
-	verilator --lint-only -I$(RTL_DIR) $(RTL_DEBUG_FLAGS) $(RTL_DIR)/tx_uart.v --top tx_uart
+	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/tx_uart.v --top tx_uart
 
 # run tbs
 run-tb-top:
-	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DEBUG_FLAGS) $(RTL_DIR)/top.v $(TB_DIR)/top_tb.sv --top top_tb
+	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/top.v $(TB_DIR)/top_tb.sv --top top_tb
 	$(TOP_TB_EXEC)
 run-tb-rx:
-	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DEBUG_FLAGS) $(RTL_DIR)/rx_uart.v $(TB_DIR)/rx_tb.sv --top rx_tb
+	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/rx_uart.v $(TB_DIR)/rx_tb.sv --top rx_tb
 	$(RX_TB_EXEC)
 run-tb-tx:
-	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DEBUG_FLAGS) $(RTL_DIR)/tx_uart.v $(TB_DIR)/tx_tb.sv --top tx_tb
+	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/tx_uart.v $(TB_DIR)/tx_tb.sv --top tx_tb
 	$(TX_TB_EXEC)
 
 clean: # remove generated stuff

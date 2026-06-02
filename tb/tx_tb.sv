@@ -14,7 +14,7 @@ tx_uart txInstance(
     .msgOutP(msgOut),
     .tx(txOut));
 
-task txAutoRndmTest();
+task static txAutoRndmTest();
     
 endtask 
 

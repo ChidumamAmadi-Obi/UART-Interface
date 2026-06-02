@@ -74,7 +74,7 @@ task receiveUartByte(
 		for ( int i=0; i<8; i++) begin
 			receivedByte[i] = tx; // populate byte bit by bit
 			waitFrames(`HALF_DELAY_FRAMES_TB,clk); // wait until in the middle of next data bit 
-			$display("--- tx: %d ---",tx);
+			$display("--- tx: %d ---",tx); // TX IS AT 0 CONSTANTLY, FIX LATER, (TIMING ISSUE?)
 		end
 		waitFrames(`DELAY_FRAMES_TB*3,clk); // wait until stop bit finished
     end
@@ -88,8 +88,8 @@ task receiveUartMsg( // get what message should be and store
 
 	for (int i=0; i< `MSG_BUFFER_LENGTH; i++) begin
 		receiveUartByte (tx, receivedByte, clk); // get byte sent
-
 		expectedMsgViaTx[8*i +: 8] = receivedByte;
+    
 	end	
 
 	// $display("--- ACTUAL MSG: 0x%0H ---",expectedMsgViaTx);
