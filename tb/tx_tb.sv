@@ -20,19 +20,15 @@ endtask
 
 always #1 clkIn = ~clkIn;
 initial begin
-	/*
-    $monitor("TX: %d, TX BIT NO: %d MSG BIT NO: %d",
-        txOut, 
-        txInstance.txBitNumber, 
-        txInstance.msgByteNumber);
-    */
-    
     clkIn=0;
     rdyIn=0;
     msgOut = '{ default : 0 }; // init buffer with zeros
+    expMsgViaTx = '{ default : 0 };
 
-    genRndmMsg(msgOut, rdyIn); // generate random msg in buffer
-    receiveUartMsg(txOut, expMsgViaTx, clkIn);
+    fork
+        genRndmMsg(msgOut, rdyIn); // generate random msg in buffer
+        receiveUartMsg(txOut, expMsgViaTx, clkIn);              
+    join
 
     $display("--- SENT MSG:   0x%0H ---",msgOut);
     $display("--- ACTUAL MSG: 0x%0H ---",expMsgViaTx);

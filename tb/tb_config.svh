@@ -16,11 +16,6 @@
 `define HALF_DELAY_FRAMES_TB `DELAY_FRAMES
 
 // TASKS ****************************************************************************************************
-task waitFrames( input integer frames, ref logic clk );
-	repeat (frames) begin
-		@(posedge clk);
-	end
-endtask
 
 task sendUartByte( // send one byte via uart
   input logic [7:0] byteIn,
@@ -62,37 +57,43 @@ task genRndmMsg( // put random bytes in msg buffer
     #1 rdy=1;
     #1 rdy=0;
 
-	// $display("-- FULL MSG: 0x%0H --", msg);
+	$display("-- MSG 0x%0H SENT --", msg);
+	$display("[%d]",$time/`DELAY_FRAMES_TB);
 endtask
 task receiveUartByte( 
-  input logic tx,
-  output logic [7:0] receivedByte, 
+  ref logic tx,
+  ref logic [7:0] receivedByte, 
   ref logic clk );  
-
-    if ( tx == 0 ) begin
-		waitFrames(`HALF_DELAY_FRAMES_TB*3,clk); // wait until after start bit 
+    $display("[%d]",$time/`DELAY_FRAMES_TB);
+    @(negedge tx) begin // this thing misses the first byte of info for some reason
+	
+		#(`HALF_DELAY_FRAMES_TB); // wait until after start bit 
 		for ( int i=0; i<8; i++) begin
-			receivedByte[i] = tx; // populate byte bit by bit
-			waitFrames(`HALF_DELAY_FRAMES_TB,clk); // wait until in the middle of next data bit 
-			$display("--- tx: %d ---",tx); // TX IS AT 0 CONSTANTLY, FIX LATER, (TIMING ISSUE?)
+			#(`DELAY_FRAMES_TB);
+			receivedByte[i] = tx;// wait until in the middle of data bit 
+			// populate byte bit by bit
+				
+			$display("[%d] %d TX: %d",$time/`DELAY_FRAMES_TB ,i, tx);
 		end
-		waitFrames(`DELAY_FRAMES_TB*3,clk); // wait until stop bit finished
-    end
+		#(`HALF_DELAY_FRAMES_TB*3); // wait until stop bit finished	
+	end
+	
+	
 endtask
 task receiveUartMsg( // get what message should be and store
-  input logic tx,
-  output logic [`MSG_BIT_LENGTH-1:0] expectedMsgViaTx,
+  ref logic tx,
+  ref logic [`MSG_BIT_LENGTH-1:0] expectedMsgViaTx,
   ref logic clk);
 
 	static logic [7:0] receivedByte=0;
 
 	for (int i=0; i< `MSG_BUFFER_LENGTH; i++) begin
-		receiveUartByte (tx, receivedByte, clk); // get byte sent
+		receiveUartByte(tx, receivedByte, clk); // get byte sent
+        $display("%d BYTE: 0x%0H",i , receivedByte);
 		expectedMsgViaTx[8*i +: 8] = receivedByte;
-    
 	end	
 
-	// $display("--- ACTUAL MSG: 0x%0H ---",expectedMsgViaTx);
+	$display("--- ACTUAL MSG: 0x%0H ---",expectedMsgViaTx);
 endtask
 
 `endif
