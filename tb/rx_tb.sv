@@ -29,7 +29,7 @@ task static rxAutoRndmTest(); // automatically checks tests and gives report
     end
 
     for (int i=0; i<`NO_OF_RX_TESTS; i++) begin  // checks each test to see pass fail
-        if ( (failedTests >> i) & 1 ) begin // if bit is set that means that test failed
+        if (failedTests >> i) begin // if bit is set that means that test failed
             $display("TEST NO: %d FAILED...", i);
             noOfFailed++;
         end

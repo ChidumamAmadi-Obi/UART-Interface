@@ -17,7 +17,7 @@
 
 // TASKS ****************************************************************************************************
 
-task sendUartByte( // send one byte via uart
+task automatic sendUartByte( // send one byte via uart
   input logic [7:0] byteIn,
   input logic [2:0] rxBitNumber,
   ref logic rx);
@@ -29,7 +29,7 @@ task sendUartByte( // send one byte via uart
     end
     #(`DELAY_FRAMES_TB) rx = 1; // stop bit  
 endtask
-task sendMsgRndm( // sends whole msg with random numbers and records expected msg buffer value
+task automatic sendMsgRndm( // sends whole msg with random numbers and records expected msg buffer value
   input logic [2:0] bitNo,
   output logic [`MSG_BIT_LENGTH-1:0] expectedMsgBuffer,
   ref logic rx);
@@ -46,7 +46,8 @@ task sendMsgRndm( // sends whole msg with random numbers and records expected ms
         expectedMsgBuffer);  
 endtask
 
-task genRndmMsg( // put random bytes in msg buffer
+// *****
+task automatic genRndmMsg( // put random bytes in msg buffer
   ref logic [`MSG_BIT_LENGTH-1:0] msg,
   ref logic rdy);
 
@@ -56,31 +57,26 @@ task genRndmMsg( // put random bytes in msg buffer
 	
     #1 rdy=1;
     #1 rdy=0;
-
-	$display("-- MSG 0x%0H SENT --", msg);
-	$display("[%d]",$time/`DELAY_FRAMES_TB);
 endtask
-task receiveUartByte( 
+
+task automatic receiveUartByte( 
   ref logic tx,
   ref logic [7:0] receivedByte, 
   ref logic clk );  
-    $display("[%d]",$time/`DELAY_FRAMES_TB);
-    @(negedge tx) begin // this thing misses the first byte of info for some reason
 	
+	// $display("FRAME_NO: [%d]", $time/`DELAY_FRAMES_TB);
+    @(negedge tx) begin // this thing misses the first byte of info for some reason
 		#(`HALF_DELAY_FRAMES_TB); // wait until after start bit 
 		for ( int i=0; i<8; i++) begin
 			#(`DELAY_FRAMES_TB);
 			receivedByte[i] = tx;// wait until in the middle of data bit 
 			// populate byte bit by bit
 				
-			$display("[%d] %d TX: %d",$time/`DELAY_FRAMES_TB ,i, tx);
 		end
 		#(`HALF_DELAY_FRAMES_TB*3); // wait until stop bit finished	
 	end
-	
-	
 endtask
-task receiveUartMsg( // get what message should be and store
+task automatic receiveUartMsg( // get what message should be and store
   ref logic tx,
   ref logic [`MSG_BIT_LENGTH-1:0] expectedMsgViaTx,
   ref logic clk);
@@ -89,11 +85,8 @@ task receiveUartMsg( // get what message should be and store
 
 	for (int i=0; i< `MSG_BUFFER_LENGTH; i++) begin
 		receiveUartByte(tx, receivedByte, clk); // get byte sent
-        $display("%d BYTE: 0x%0H",i , receivedByte);
 		expectedMsgViaTx[8*i +: 8] = receivedByte;
 	end	
-
-	$display("--- ACTUAL MSG: 0x%0H ---",expectedMsgViaTx);
 endtask
 
 `endif

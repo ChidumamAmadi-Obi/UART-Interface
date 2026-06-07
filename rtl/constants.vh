@@ -5,6 +5,7 @@
 
 `ifndef _CONSTANTS_
 `define _CONSTANTS_
+`timescale 1ns/1ps
 
 `define BAUD_RATE 115200 
 `define DELAY_FRAMES (27000000/`BAUD_RATE) //number of clock pulses needed to reach the desired baud rate
