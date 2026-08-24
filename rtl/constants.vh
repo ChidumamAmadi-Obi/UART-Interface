@@ -29,9 +29,7 @@
     `define TX_STATE_STOP 3
 
 // SPI CONSTANTS
-    // state machine sates
-    `define SPI_STATE_IDLE 2'b00
-    `define SPI_STATE_WAIT 2'b01
-    `define SPI_STATE_SHIFT 2'b10
-
+    `define SPI_DATA_LENGTH 32 // 32 bit for now
+    //`define SPI_COUNTER_DATA_LENGTH ($clog(SPI_DATA_LENGTH)) // $clog(x) = log base 2 (x)
+    `define SPI_COUNTER_DATA_LENGTH 5
 `endif
