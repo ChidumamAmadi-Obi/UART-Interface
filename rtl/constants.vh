@@ -5,25 +5,33 @@
 
 `ifndef _CONSTANTS_
 `define _CONSTANTS_
+
 `timescale 1ns/1ps
 
-`define BAUD_RATE 115200 
-`define DELAY_FRAMES (27000000/`BAUD_RATE) //number of clock pulses needed to reach the desired baud rate
-`define HALF_DELAY_FRAMES `DELAY_FRAMES/2
-`define MSG_BUFFER_LENGTH 16 // holds 16 chars/bytes at a time
-`define MSG_BIT_LENGTH `MSG_BUFFER_LENGTH*8
+// UART CONSTANTS
+    `define BAUD_RATE 115200 
+    `define DELAY_FRAMES (27000000/`BAUD_RATE) //number of clock pulses needed to reach the desired baud rate
+    `define HALF_DELAY_FRAMES `DELAY_FRAMES/2
+    `define MSG_BUFFER_LENGTH 16 // holds 16 chars/bytes at a time
+    `define MSG_BIT_LENGTH `MSG_BUFFER_LENGTH*8
 
-// rx state machine
-`define RX_STATE_IDLE 0
-`define RX_STATE_START 1
-`define RX_STATE_READ_WAIT 2
-`define RX_STATE_READ 3
-`define RX_STATE_STOP 4
+    // rx state machine
+    `define RX_STATE_IDLE 0
+    `define RX_STATE_START 1
+    `define RX_STATE_READ_WAIT 2
+    `define RX_STATE_READ 3
+    `define RX_STATE_STOP 4
 
-// tx state machine
-`define TX_STATE_IDLE 0
-`define TX_STATE_START 1
-`define TX_STATE_WRITE 2
-`define TX_STATE_STOP 3
+    // tx state machine
+    `define TX_STATE_IDLE 0
+    `define TX_STATE_START 1
+    `define TX_STATE_WRITE 2
+    `define TX_STATE_STOP 3
+
+// SPI CONSTANTS
+    // state machine sates
+    `define SPI_STATE_IDLE 2'b00
+    `define SPI_STATE_WAIT 2'b01
+    `define SPI_STATE_SHIFT 2'b10
 
 `endif

@@ -2,7 +2,7 @@
  when using verilator, first byte of sent message is missed by task "receiveUartByte"
  this test bench needs to be compiled and run by another compiler from eda playground to work
 
- only first test gets completed freezes on second test
+ only first test gets completed freezes on second test ( durring the task receivedUartByte ? )
 */
 
 `include "tb_config.svh"

@@ -64,7 +64,6 @@ task automatic receiveUartByte(
   ref logic [7:0] receivedByte, 
   ref logic clk );  
 	
-	// $display("FRAME_NO: [%d]", $time/`DELAY_FRAMES_TB);
     @(negedge tx) begin // this thing misses the first byte of info for some reason
 		#(`HALF_DELAY_FRAMES_TB); // wait until after start bit 
 		for ( int i=0; i<8; i++) begin
