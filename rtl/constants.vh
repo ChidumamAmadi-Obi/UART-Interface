@@ -29,7 +29,6 @@
     `define TX_STATE_STOP 3
 
 // SPI CONSTANTS
-    `define SPI_DATA_LENGTH 32 // 32 bit for now
-    //`define SPI_COUNTER_DATA_LENGTH ($clog(SPI_DATA_LENGTH)) // $clog(x) = log base 2 (x)
-    `define SPI_COUNTER_DATA_LENGTH 5
+// SENSOR CONSTANTS
+
 `endif
