@@ -30,5 +30,9 @@
 
 // SPI CONSTANTS
 // SENSOR CONSTANTS
+    `define SONAR_CTRL_IDLE 0
+    `define SONAR_CTRL_TRIG 1
+    `define SONAR_CTRL_WAIT 2
+    `define SONAR_CTRL_ECHO 3
 
 `endif
