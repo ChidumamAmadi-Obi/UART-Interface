@@ -35,4 +35,6 @@
     `define SONAR_CTRL_WAIT 2
     `define SONAR_CTRL_ECHO 3
 
+    `define TEN_US 9'd270 // amount of clk cycles (at 27MHz) it takes to reach ten microseconds
+
 `endif
