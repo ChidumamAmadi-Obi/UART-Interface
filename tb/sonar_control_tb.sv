@@ -20,10 +20,30 @@ sonar_control sonar_controlInstance (
 
 always #1 clk = ~clk; 
 initial begin
-    $monitor("STATE0: %d, STATE1: %d, STATE2: %d ", 
+    $monitor("STATE0: %d, STATE1: %d, STATE2: %d trig %d", 
     sonar_controlInstance.state0, 
     sonar_controlInstance.state1, 
-    sonar_controlInstance.state2);
+    sonar_controlInstance.state2,
+    trig);
+
+
+    $monitor ("%d %d %d",
+    sonar_controlInstance.inTRIG0,
+    sonar_controlInstance.inTRIG1,
+    sonar_controlInstance.inTRIG2,);
+
+    /* $monitor("%d %d %d", 
+    sonar_controlInstance.rawDist0,
+    sonar_controlInstance.rawDist1,
+    sonar_controlInstance.rawDist2); */
+
+    /* $monitor("CNT0: %d ECHO0: %d, CNT1: %d ECHO1: %d, CNT2: %d ECHO2: %d",
+    sonar_controlInstance.cnt0,
+    sonar_controlInstance.echo0_i,
+    sonar_controlInstance.cnt1,
+    sonar_controlInstance.echo1_i,
+    sonar_controlInstance.cnt2,
+    sonar_controlInstance.echo2_i); */
 
     en = 1'b1;
     clk = 1'b0;
@@ -33,17 +53,24 @@ initial begin
     echo1 = 1'b0;
     echo2 = 1'b0;
 
-    #(20);
+    #(`TEN_US*2); // trig pulse length
+    #(100); // time to echo back
 
     echo0 = 1'b1;
     echo1 = 1'b1;
     echo2 = 1'b1;
-    #(1);
+    #(10);
     echo0 = 1'b0;
     echo1 = 1'b0;
     echo2 = 1'b0;
 
-    #(10);
-    $finish;
+    #(50) $finish;
 end
 endmodule
+
+/* notes
+state transitions are perfect
+trig is pulled high forever, other than that no bugs
+make model of distance calculation to verify correct distance output later
+
+*/
