@@ -14,9 +14,9 @@ module sonar_control(
     input wire rstn_i,
     input wire en_i, // keep high
 
-    output reg [7:0] filteredDist0_o, // left
-    output reg [7:0] filteredDist1_o, // middle
-    output reg [7:0] filteredDist2_o, // right
+    output reg [21:0] filteredDist0_o, // left
+    output reg [21:0] filteredDist1_o, // middle
+    output reg [21:0] filteredDist2_o, // right
 
     input wire echo0_i,
     input wire echo1_i,
@@ -24,12 +24,11 @@ module sonar_control(
     output wire trig_o
 );
 
-reg [7:0] filteredDist0, filteredDist1, filteredDist2;
-reg [7:0] rawDist0, rawDist1, rawDist2;
+reg [21:0] filteredDist0, filteredDist1, filteredDist2;
+reg [21:0] rawDist0, rawDist1, rawDist2;
 reg [9:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
 reg [2:0] state0, state1, state2;
 reg trigPulsed;
-reg en;
 
 wire rawDistRdy0, rawDistRdy1 ,rawDistRdy2;
 
@@ -82,6 +81,9 @@ always @(posedge clk_i or negedge rstn_i) begin
             `SONAR_CTRL_WAIT: begin state2 <= (echo2_i) ? `SONAR_CTRL_ECHO : state2; end
             `SONAR_CTRL_ECHO: begin state2 <= (echo2_i) ? state2 : `SONAR_CTRL_IDLE; end
         endcase
+        rawDist0 <= inWAIT0 ? 22'b0 : rawDist0 + {21'b0 , inECHO0}; // get raw distance
+        rawDist1 <= inWAIT1 ? 22'b0 : rawDist1 + {21'b0 , inECHO1};
+        rawDist2 <= inWAIT2 ? 22'b0 : rawDist2 + {21'b0 , inECHO2};        
     end
 end
 
@@ -93,12 +95,6 @@ always@(posedge clk_i) begin // Counter
     if(inIDLE2) cnt2 <= 10'd0;
     else cnt2 <= cnt2 + {9'd0, (|cnt2 | inTRIG2)};                
 end
-
-always @(posedge clk_i) begin // get raw distance
-    rawDist0 <= inWAIT0 ? 8'b0 : rawDist0 + {7'b0 , inECHO0};
-    rawDist1 <= inWAIT1 ? 8'b0 : rawDist1 + {7'b0 , inECHO1};
-    rawDist2 <= inWAIT2 ? 8'b0 : rawDist2 + {7'b0 , inECHO2};
-end 
 
 assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out
 assign trigPulsed = (cnt0 == `TEN_US) && (cnt2 == `TEN_US) && (cnt2 == `TEN_US);
