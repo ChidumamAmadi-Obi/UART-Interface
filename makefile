@@ -4,6 +4,9 @@
 RTL_DISABLE_WARNING ?= -Wno-WIDTHEXPAND
 TB_DISABLE_WARNING ?=  $(RTL_DISABLE_WARNING) -Wno-WIDTHTRUNC
 
+# log file for tbs if needed
+TB_LOG_FILE = verilator_tb_log.txt
+
 # source files ***********************
 # rtl
 TOP_RTL_SRC = top
@@ -70,19 +73,19 @@ lint-rtl-tx:
 # run tbs
 run-tb-top:
 	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/$(TOP_RTL_SRC).v $(TB_DIR)/$(TOP_TB_SRC).sv --top top_tb
-	$(TOP_TB_EXEC)
+	$(TOP_TB_EXEC) | tee $(TB_LOG_FILE)
 run-tb-spi:
 	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/$(TOP_SPI_SRC).v $(TB_DIR)/$(SPI_TB_SRC).sv --top spi_slave_top_tb
-	$(TOP_SPI_EXEC)
+	$(TOP_SPI_EXEC) | tee $(TB_LOG_FILE)
 run-tb-snr-ctrl:
 	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/$(SNR_CTRL_SRC).v $(TB_DIR)/$(SNR_CTRL_TB_SRC).sv --top sonar_control_tb
-	$(SNR_CTRL_TB_EXEC)
+	$(SNR_CTRL_TB_EXEC) | tee $(TB_LOG_FILE)
 run-tb-rx:
 	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/$(RX_RTL_SRC).v $(TB_DIR)/$(RX_TB_SRC).sv --top rx_tb
-	$(RX_TB_EXEC)
+	$(RX_TB_EXEC) | tee $(TB_LOG_FILE)
 run-tb-tx:
 	verilator --binary -I$(RTL_DIR) -I$(TB_DIR) $(TB_DISABLE_WARNING) $(RTL_DIR)/$(TX_RTL_SRC).v $(TB_DIR)/$(TX_TB_SRC).sv --top tx_tb
-	$(TX_TB_EXEC)
+	$(TX_TB_EXEC) | tee $(TB_LOG_FILE)
 
 clean: # remove generated stuff
 	rm $(OBJ_DIR)/*

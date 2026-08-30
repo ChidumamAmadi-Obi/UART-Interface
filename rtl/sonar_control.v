@@ -52,7 +52,6 @@ always @(posedge clk_i or negedge rstn_i) begin
         state0 <= `SONAR_CTRL_IDLE;
         state1 <= `SONAR_CTRL_IDLE;
         state2 <= `SONAR_CTRL_IDLE;
-        trigPulsed <= 1'b0;
         filteredDist0 <= 8'b0;
         filteredDist1 <= 8'b0;
         filteredDist2 <= 8'b0;
