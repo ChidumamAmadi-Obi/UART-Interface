@@ -3,9 +3,7 @@
 /* notes
 ref https://github.com/suoglu/HC-SR04/blob/master/Sources/hc-sr04.v
 
-sys clk at 27MHz
 */
-
 
 // control 3 ultra sonic distance sensors, filter the data and output 
 
@@ -30,8 +28,7 @@ reg [9:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to g
 reg [2:0] state0, state1, state2;
 reg trigPulsed;
 
-wire rawDistRdy0, rawDistRdy1 ,rawDistRdy2;
-
+reg rdy; 
 wire inIDLE0, inIDLE1, inIDLE2; // for tracking states
 wire inTRIG0, inTRIG1, inTRIG2;
 wire inWAIT0, inWAIT1, inWAIT2;
@@ -55,13 +52,13 @@ always @(posedge clk_i or negedge rstn_i) begin
         state0 <= `SONAR_CTRL_IDLE;
         state1 <= `SONAR_CTRL_IDLE;
         state2 <= `SONAR_CTRL_IDLE;
+        trigPulsed <= 1'b0;
         filteredDist0 <= 8'b0;
         filteredDist1 <= 8'b0;
         filteredDist2 <= 8'b0;
         rawDist0 <= 8'b0;
         rawDist1 <= 8'b0;
         rawDist2 <= 8'b0;  
-        
     end else begin // ctrl states of 3 distance sensors
         case(state0)
             `SONAR_CTRL_IDLE: begin state0 <= (en_i) ? `SONAR_CTRL_TRIG : state0; end
@@ -87,13 +84,19 @@ always @(posedge clk_i or negedge rstn_i) begin
     end
 end
 
-always@(posedge clk_i) begin // Counter
-    if(inIDLE0) cnt0 <= 10'd0;
-    else cnt0 <= cnt0 + {9'd0, (|cnt0 | inTRIG0)};
-    if(inIDLE1) cnt1 <= 10'd0;
-    else cnt1 <= cnt1 + {9'd0, (|cnt1 | inTRIG1)};
-    if(inIDLE2) cnt2 <= 10'd0;
-    else cnt2 <= cnt2 + {9'd0, (|cnt2 | inTRIG2)};                
+always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time until echo
+    if (rstn_i == 1'b0) begin
+        cnt0 <= 10'd0;
+        cnt1 <= 10'd0;
+        cnt2 <= 10'd0;
+    end else begin 
+        if(inIDLE0) cnt0 <= 10'd0;
+        else cnt0 <= cnt0 + {9'd0, (|cnt0 | inTRIG0)};
+        if(inIDLE1) cnt1 <= 10'd0;
+        else cnt1 <= cnt1 + {9'd0, (|cnt1 | inTRIG1)};
+        if(inIDLE2) cnt2 <= 10'd0;
+        else cnt2 <= cnt2 + {9'd0, (|cnt2 | inTRIG2)};           
+    end             
 end
 
 assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out

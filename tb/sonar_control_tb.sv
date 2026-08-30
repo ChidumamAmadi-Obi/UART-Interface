@@ -18,7 +18,7 @@ sonar_control sonar_controlInstance (
     .echo2_i(echo2),
     .trig_o(trig));
 
-always #1 clk = ~clk; 
+always #1 clk = ~clk; // this generates the clk pulse
 initial begin
     $monitor("STATE0: %d, STATE1: %d, STATE2: %d trig %d", 
     sonar_controlInstance.state0, 
@@ -26,11 +26,10 @@ initial begin
     sonar_controlInstance.state2,
     trig);
 
-
-    $monitor ("%d %d %d",
+    /* $monitor ("%d %d %d",
     sonar_controlInstance.inTRIG0,
     sonar_controlInstance.inTRIG1,
-    sonar_controlInstance.inTRIG2,);
+    sonar_controlInstance.inTRIG2,); */
 
     /* $monitor("%d %d %d", 
     sonar_controlInstance.rawDist0,
@@ -45,7 +44,7 @@ initial begin
     sonar_controlInstance.cnt2,
     sonar_controlInstance.echo2_i); */
 
-    en = 1'b1;
+    en = 1'b1; // en is always high when module in use
     clk = 1'b0;
     rstn = 1'b1;
 
@@ -53,7 +52,12 @@ initial begin
     echo1 = 1'b0;
     echo2 = 1'b0;
 
+    // since en is high, a pulse is sent to trig_o for `TEN_US clk cycles (10us)
+
     #(`TEN_US*2); // trig pulse length
+
+    // after pulse is sent, there is a waiting period before it echos back
+
     #(100); // time to echo back
 
     echo0 = 1'b1;
@@ -64,13 +68,14 @@ initial begin
     echo1 = 1'b0;
     echo2 = 1'b0;
 
+    // distance is calculated after
+
     #(50) $finish;
 end
 endmodule
 
 /* notes
 state transitions are perfect
-trig is pulled high forever, other than that no bugs
 make model of distance calculation to verify correct distance output later
 
 */
