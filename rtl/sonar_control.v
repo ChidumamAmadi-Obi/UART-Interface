@@ -2,7 +2,7 @@
 
 /* notes
 ref https://github.com/suoglu/HC-SR04/blob/master/Sources/hc-sr04.v
-
+datasheet https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf
 */
 
 // control 3 ultra sonic distance sensors, filter the data and output 
@@ -61,7 +61,7 @@ always @(posedge clk_i or negedge rstn_i) begin
     end else begin // ctrl states of 3 distance sensors
         case(state0)
             `SONAR_CTRL_IDLE: begin state0 <= (en_i) ? `SONAR_CTRL_TRIG : state0; end
-            `SONAR_CTRL_TRIG: begin /* pulse the trig pin once an then switch states */ state0 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state0; end // assign trigPulsed 0 after state transiton
+            `SONAR_CTRL_TRIG: begin state0 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state0; end
             `SONAR_CTRL_WAIT: begin state0 <= (echo0_i) ? `SONAR_CTRL_ECHO : state0; end
             `SONAR_CTRL_ECHO: begin state0 <= (echo0_i) ? state0 : `SONAR_CTRL_IDLE; end
         endcase
