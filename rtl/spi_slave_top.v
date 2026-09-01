@@ -10,7 +10,8 @@ module spi_slave_top(
     input wire clk_i,
     input wire rstn_i,
 
-    input wire [31:0] data_i, // data to be sent out 
+    input wire [31:0] data_i, // data input into module
+    output wire [31:0] data_o, // data output out of module
 
     input wire sck_i,    // mcu -> fpga (spi clock)
     input wire mosi_i,    // mcu -> fpga (data input)

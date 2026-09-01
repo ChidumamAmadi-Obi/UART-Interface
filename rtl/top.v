@@ -19,5 +19,4 @@ tx_uart txModule(
     .rdy(msgRdy),
     .tx(txUart),
     .msgOutP(msg)); // msg fpga is sending
-    
 endmodule

@@ -19,7 +19,8 @@ module sonar_control(
     input wire echo0_i,
     input wire echo1_i,
     input wire echo2_i,
-    output wire trig_o
+    output wire trig_o,
+    output wire rdy_o // pulse when all states return to IDLE, finish bounds checking of distances
 );
 
 reg [21:0] rawDist0, rawDist1, rawDist2;
@@ -97,6 +98,8 @@ always @(posedge clk_i or negedge rstn_i) begin
     end
 end
 
+assign trigPulsed = (cnt0 == `TEN_US) && (cnt2 == `TEN_US) && (cnt2 == `TEN_US);
+
 always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time until echo
     if (rstn_i == 1'b0) begin
         cnt0 <= 10'd0;
@@ -112,10 +115,9 @@ always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time unti
     end             
 end
 
+assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out
+assign rdy_o = (rdy == 3'b111) ? 1'b1 : 1'b0; // if all distances ready at the same time, send sig 
 assign dist0_o = rdy[0] ? rawDist0 : 22'b0; // only update if ready
 assign dist1_o = rdy[1] ? rawDist1 : 22'b0;
 assign dist2_o = rdy[2] ? rawDist2 : 22'b0;
-
-assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out
-assign trigPulsed = (cnt0 == `TEN_US) && (cnt2 == `TEN_US) && (cnt2 == `TEN_US);
 endmodule 

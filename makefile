@@ -46,8 +46,8 @@ RX_TB_EXEC = ./$(OBJ_DIR)/V$(RX_TB_SRC)
 help: # shows message
 	@echo  MAKEFILE TARGETS:
 	@echo  - lint-rtl
-	@echo  - lint-spi-top
-	@echo  - lint-snr-ctrl
+	@echo  - lint-rtl-spi
+	@echo  - lint-rtl-snr
 	@echo  - lint-rtl-tx
 	@echo  - lint-rtl-rx
 	@echo  - run-tb-top
@@ -61,9 +61,9 @@ help: # shows message
 # lint only rtl modules
 lint-rtl:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(TOP_RTL_SRC).v --top top
-lint-spi-top:
+lint-rtl-spi:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(TOP_SPI_SRC).v --top spi_slave_top
-lint-snr-ctrl:
+lint-rtl-snr:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(SNR_CTRL_SRC).v --top sonar_control
 lint-rtl-rx:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(RX_RTL_SRC).v --top rx_uart
