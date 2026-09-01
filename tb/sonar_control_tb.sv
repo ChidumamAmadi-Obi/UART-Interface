@@ -1,5 +1,5 @@
 `include "tb_config.svh"
-parameter SPEED_OF_SOUND = 0.0340; // 0.034 cm/us
+parameter SPEED_OF_SOUND = 0.0340; // 0.034 cm/us, or 340/
 parameter SYS_CLK_FREQ_MHZ = 27; // 27MHz
 
 module sonar_control_tb;
@@ -52,7 +52,7 @@ initial begin
     echo0 = 1'b1;
     echo1 = 1'b1;
     echo2 = 1'b1;
-    #(255*2); // echo is high for a certain amount of time which is in proportion to the distance measured
+    #(3177*2); // echo is high for a certain amount of time which is in proportion to the distance measured
     echo0 = 1'b0;
     echo1 = 1'b0;
     echo2 = 1'b0;
@@ -62,8 +62,8 @@ initial begin
     actualDistanceRaw = sonar_controlInstance.rawDist0;
 
     #(10);  // distance is calculated after
-    $display("DISTANCE_E %f, ECHO_US %fus, DISTANCE_A %f", 
-        calculateDistance(255), // calculate expected distance
+    $display("DISTANCE_E %fcm, ECHO_US %fus, DISTANCE_A %fcm", 
+        calculateDistance(3177), // calculate expected distance
         clkCycles2us(actualDistanceRaw), // calculate microseconds echo was high
         calculateDistance(actualDistanceRaw)); // calculate actual distance measured
 

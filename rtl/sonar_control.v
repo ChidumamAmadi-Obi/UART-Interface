@@ -24,7 +24,7 @@ module sonar_control(
 
 reg [21:0] filteredDist0, filteredDist1, filteredDist2;
 reg [21:0] rawDist0, rawDist1, rawDist2;
-reg [9:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
+reg [19:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
 reg [2:0] state0, state1, state2;
 reg trigPulsed;
 
