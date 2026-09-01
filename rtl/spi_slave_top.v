@@ -10,7 +10,7 @@ module spi_slave_top(
     input wire clk_i,
     input wire rstn_i,
 
-    input wire [32-1:0] data_i, // data to be sent out 
+    input wire [31:0] data_i, // data to be sent out 
 
     input wire sck_i,    // mcu -> fpga (spi clock)
     input wire mosi_i,    // mcu -> fpga (data input)
@@ -26,12 +26,12 @@ reg [1:0] mosiR;
 wire mosiD; // mosi data
 
 // store and track data receivec
-reg [5-1:0] bitCount;
-reg [32-1:0] wordIN;
+reg [4:0] bitCount;
+reg [31:0] wordIN;
 reg wordReceived;
 
 // handle sending data
-reg [32-1:0] wordOUT;
+reg [31:0] wordOUT;
 // reg [32-1:0] msgCount;
 
 always @(posedge clk_i or negedge rstn_i) begin 
@@ -54,7 +54,7 @@ always @(posedge clk_i or negedge rstn_i) begin
         if (~csnActive) bitCount <= 5'b0; // if chip not selected do nothing
         else if (sckPosedge) begin // shift the reg
             bitCount <= bitCount + 1'b1; 
-            wordIN <= {wordIN[32-2:0], mosiD}; 
+            wordIN <= {wordIN[30:0], mosiD}; 
         end    
 
         wordReceived <= csnActive && sckPosedge && (bitCount == 32); // update byte receied flag
@@ -65,7 +65,7 @@ always @(posedge clk_i or negedge rstn_i) begin
             // if (csnStart) wordOUT <= msgCount; 
             else if (sckNegedge) begin 
                 if (bitCount == 3'b000) wordOUT <= 32'b0; 
-                else wordOUT <= {wordOUT[32-2:0], 1'b0}; 
+                else wordOUT <= {wordOUT[30:0], 1'b0}; 
             end
         end
     end
@@ -78,6 +78,6 @@ assign csnStart    = (csnR[2:1] == 2'b10); // msg start at falling edge
 assign csnEnd      = (csnR[2:1] == 2'b01); // msg end at pos edge
 assign mosiD       = mosiR[1];
 
-assign miso_o = wordOUT[32-1];
+assign miso_o = wordOUT[31];
 
 endmodule

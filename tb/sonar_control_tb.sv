@@ -52,7 +52,7 @@ initial begin
     echo0 = 1'b1;
     echo1 = 1'b1;
     echo2 = 1'b1;
-    #(3177*2); // echo is high for a certain amount of time which is in proportion to the distance measured
+    #((`RAW_DIST_MIN)*2); // echo is high for a certain amount of time which is in proportion to the distance measured
     echo0 = 1'b0;
     echo1 = 1'b0;
     echo2 = 1'b0;
@@ -62,8 +62,9 @@ initial begin
     actualDistanceRaw = sonar_controlInstance.rawDist0;
 
     #(10);  // distance is calculated after
-    $display("DISTANCE_E %fcm, ECHO_US %fus, DISTANCE_A %fcm", 
-        calculateDistance(3177), // calculate expected distance
+    $display("DISTANCE_E %fcm,      RAW_DISTANCE %d, ECHO_US %fus, DISTANCE_A %fcm", 
+        calculateDistance(`RAW_DIST_MIN), // calculate expected distance
+        sonar_controlInstance.rawDist0,
         clkCycles2us(actualDistanceRaw), // calculate microseconds echo was high
         calculateDistance(actualDistanceRaw)); // calculate actual distance measured
 

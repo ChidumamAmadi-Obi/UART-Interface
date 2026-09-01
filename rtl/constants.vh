@@ -35,7 +35,8 @@
     `define SONAR_CTRL_WAIT 2
     `define SONAR_CTRL_ECHO 3
 
+    // `define TRIG_INTERVAL clk cycles inbetween trig pulses
     `define TEN_US 9'd270 // amount of clk cycles (at 27MHz) it takes to reach ten microseconds
-    `define CNT_MAX 20'd635295 // max amount of clk cycles echo can be high (for 400cm distance)
-    `define CNT_MIN 20'd3177 // min amount of clk cycles echo can be high (for 2cm distance)
+    `define RAW_DIST_MAX 20'd635295 // max amount of clk cycles echo can be high (for 400cm distance)
+    `define RAW_DIST_MIN 20'd3177 // min amount of clk cycles echo can be high (for 2cm distance)
 `endif

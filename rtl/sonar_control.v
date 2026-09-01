@@ -12,9 +12,9 @@ module sonar_control(
     input wire rstn_i,
     input wire en_i, // keep high
 
-    output reg [21:0] filteredDist0_o, // left
-    output reg [21:0] filteredDist1_o, // middle
-    output reg [21:0] filteredDist2_o, // right
+    output wire [21:0] dist0_o, // left
+    output wire [21:0] dist1_o, // middle
+    output wire [21:0] dist2_o, // right
 
     input wire echo0_i,
     input wire echo1_i,
@@ -22,13 +22,12 @@ module sonar_control(
     output wire trig_o
 );
 
-reg [21:0] filteredDist0, filteredDist1, filteredDist2;
 reg [21:0] rawDist0, rawDist1, rawDist2;
-reg [19:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
-reg [2:0] state0, state1, state2;
+reg [9:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
+reg [2:0] state0, state1, state2, statep0, statep1, statep2;
 reg trigPulsed;
 
-reg rdy; 
+reg [2:0] rdy; 
 wire inIDLE0, inIDLE1, inIDLE2; // for tracking states
 wire inTRIG0, inTRIG1, inTRIG2;
 wire inWAIT0, inWAIT1, inWAIT2;
@@ -52,13 +51,14 @@ always @(posedge clk_i or negedge rstn_i) begin
         state0 <= `SONAR_CTRL_IDLE;
         state1 <= `SONAR_CTRL_IDLE;
         state2 <= `SONAR_CTRL_IDLE;
-        filteredDist0 <= 8'b0;
-        filteredDist1 <= 8'b0;
-        filteredDist2 <= 8'b0;
         rawDist0 <= 8'b0;
         rawDist1 <= 8'b0;
         rawDist2 <= 8'b0;  
+        rdy <= 3'b0;
     end else begin // ctrl states of 3 distance sensors
+        statep0 <= state0; // track previous states
+        statep1 <= state1;
+        statep2 <= state2; 
         case(state0)
             `SONAR_CTRL_IDLE: begin state0 <= (en_i) ? `SONAR_CTRL_TRIG : state0; end
             `SONAR_CTRL_TRIG: begin state0 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state0; end
@@ -77,9 +77,23 @@ always @(posedge clk_i or negedge rstn_i) begin
             `SONAR_CTRL_WAIT: begin state2 <= (echo2_i) ? `SONAR_CTRL_ECHO : state2; end
             `SONAR_CTRL_ECHO: begin state2 <= (echo2_i) ? state2 : `SONAR_CTRL_IDLE; end
         endcase
-        rawDist0 <= inWAIT0 ? 22'b0 : rawDist0 + {21'b0 , inECHO0}; // get raw distance
-        rawDist1 <= inWAIT1 ? 22'b0 : rawDist1 + {21'b0 , inECHO1};
-        rawDist2 <= inWAIT2 ? 22'b0 : rawDist2 + {21'b0 , inECHO2};        
+
+        if (rawDist0 > `RAW_DIST_MAX) rawDist0 <= `RAW_DIST_MAX; // check for errors (if distance is outside 2-400cm range, see constants.vh)
+        else if (rawDist0 < `RAW_DIST_MIN) rawDist0 <= `RAW_DIST_MIN;
+        else rawDist0 <= inWAIT0 ? 22'b0 : rawDist0 + {21'b0 , inECHO0}; // get raw distance
+        if (rawDist1 > `RAW_DIST_MAX) rawDist1 <= `RAW_DIST_MAX; 
+        else if (rawDist1 < `RAW_DIST_MIN) rawDist1 <= `RAW_DIST_MIN;
+        else rawDist1 <= inWAIT1 ? 22'b0 : rawDist1 + {21'b0 , inECHO1};
+        if (rawDist2 > `RAW_DIST_MAX) rawDist2 <= `RAW_DIST_MAX; 
+        else if (rawDist2 < `RAW_DIST_MIN) rawDist2 <= `RAW_DIST_MIN;
+        else rawDist2 <= inWAIT2 ? 22'b0 : rawDist2 + {21'b0 , inECHO2};
+
+        if ((statep0 == `SONAR_CTRL_ECHO) && (state0 == `SONAR_CTRL_IDLE)) rdy[0] <= 1'b1; // if state went from ECHO to IDLE, rawDist is ready 
+        else                                                               rdy[0] <= 1'b0;
+        if ((statep1 == `SONAR_CTRL_ECHO) && (state1 == `SONAR_CTRL_IDLE)) rdy[1] <= 1'b1;
+        else                                                               rdy[1] <= 1'b0;
+        if ((statep2 == `SONAR_CTRL_ECHO) && (state2 == `SONAR_CTRL_IDLE)) rdy[2] <= 1'b1;
+        else                                                               rdy[2] <= 1'b0;
     end
 end
 
@@ -98,7 +112,10 @@ always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time unti
     end             
 end
 
+assign dist0_o = rdy[0] ? rawDist0 : 22'b0; // only update if ready
+assign dist1_o = rdy[1] ? rawDist1 : 22'b0;
+assign dist2_o = rdy[2] ? rawDist2 : 22'b0;
+
 assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out
 assign trigPulsed = (cnt0 == `TEN_US) && (cnt2 == `TEN_US) && (cnt2 == `TEN_US);
-
 endmodule 
