@@ -10,7 +10,7 @@ module spi_slave_top(
     input wire clk_i,
     input wire rstn_i,
 
-    input reg [32-1:0] data_i, // data to be sent out 
+    input wire [32-1:0] data_i, // data to be sent out 
 
     input wire sck_i,    // mcu -> fpga (spi clock)
     input wire mosi_i,    // mcu -> fpga (data input)
@@ -51,7 +51,7 @@ always @(posedge clk_i or negedge rstn_i) begin
         csnR  <= {csnR[1:0], csn_i}; // capture and store state of csn across 2 clk cycles
         mosiR <= {mosiR[0], mosi_i};
         
-        if (~csnActive) bitCount <= '{default:0}; // if chip not selected do nothing
+        if (~csnActive) bitCount <= 5'b0; // if chip not selected do nothing
         else if (sckPosedge) begin // shift the reg
             bitCount <= bitCount + 1'b1; 
             wordIN <= {wordIN[32-2:0], mosiD}; 
@@ -64,7 +64,7 @@ always @(posedge clk_i or negedge rstn_i) begin
             if (csnStart) wordOUT <= data_i; 
             // if (csnStart) wordOUT <= msgCount; 
             else if (sckNegedge) begin 
-                if (bitCount == 3'b000) wordOUT <= '{ default : 0 }; 
+                if (bitCount == 3'b000) wordOUT <= 32'b0; 
                 else wordOUT <= {wordOUT[32-2:0], 1'b0}; 
             end
         end
