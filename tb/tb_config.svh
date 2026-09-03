@@ -15,6 +15,8 @@
 `define DELAY_FRAMES_TB (`DELAY_FRAMES*2) // delay in tb to get one uart frame
 `define HALF_DELAY_FRAMES_TB `DELAY_FRAMES
 
+const time SPI_CLK_PERIOD = 10ns; // idk yet
+
 // TASKS ****************************************************************************************************
 
 task automatic sendUartByte( // send one byte via uart

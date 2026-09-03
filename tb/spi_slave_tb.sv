@@ -1,5 +1,96 @@
 `include "tb_config.svh"
 
-module spi_slave_top_tb;
+module spi_slave_tb;
+
+logic [31:0] data_in, data_out, expectedData_in, expectedData_out;
+logic clk,rstn,sck,mosi,miso,csn;
+
+task spiToggleSck;
+ref logic sck;
+    sck = 1'b0; // start on negedge
+    #(SPI_CLK_PERIOD/2);
+    sck = 1'b1;
+    #(SPI_CLK_PERIOD/2);
+endtask
+
+task mcuSend32; // fpga receives from mcu
+ref logic mosi;
+input logic [31:0] data;
+    for (int i=31; i>=0; i--) begin
+        mosi = data[i]; spiToggleSck(sck);
+    end
+endtask
+task mcuSend16; // fpga receives from mcu
+ref logic mosi;
+input logic [15:0] data;
+    for (int i=31; i>=0; i--) begin
+        mosi = data[i]; spiToggleSck(sck);
+    end
+endtask
+task mcuSend8; // fpga receives from mcu
+ref logic mosi;
+input logic [7:0] data;
+    for (int i=7; i>=0; i--) begin
+        mosi = data[i]; spiToggleSck(sck);
+    end
+endtask
+task mcuSend4; // fpga receives from mcu
+ref logic mosi;
+input logic [7:0] data;
+    for (int i=7; i>=0; i--) begin
+        mosi = data[i]; spiToggleSck(sck);
+    end
+endtask
+
+task fpgaSend32;
+ref logic miso;
+ref logic mosi;
+ref logic sck;
+input logic [31:0] data;
+
+    for (int i=31; i>=0; i--) begin 
+        sck = 1'b0;
+        mosi = 1'b0; #(SPI_CLK_PERIOD/2);
+
+        sck = 1'b1;
+        data[i] = miso; #(SPI_CLK_PERIOD/2);
+    end
+endtask
+
+
+spi_slave_top spi_slave_topInstance(
+    .clk_i(clk),
+    .rstn_i(rstn),
+    .data_i(data_in),
+    .data_o(data_out),
+    .sck_i(sck),
+    .mosi_i(mosi),
+    .csn_i(csn),
+    .miso_o(miso));
+
+always #1 clk = ~clk;
+
+initial begin 
+    clk = 1'b0;
+    rstn = 1'b1;
+
+    sck = 1'b0;
+    mosi = 1'b0;
+    csn = 1'b1;
+    data_in = 32'b0;
+
+    $monitor("DATA RECEIVED FROM MCU: 0x%0H", spi_slave_topInstance.wordIN);
+
+    csn = 1'b0; // csn active
+
+    mcuSend8(mosi, 8'h12);
+    mosi = 1'b0;
+    mcuSend32(mosi, 32'hDEADEAD);
+    mosi = 1'b0;
+    
+    csn = 1'b1; // csn inactive
+    
+    $finish;
+end
 
 endmodule
