@@ -12,6 +12,7 @@ TB_LOG_FILE = verilator_tb_log.txt
 TOP_RTL_SRC = top
 TOP_SPI_SRC = spi_slave_top
 SNR_CTRL_SRC = sonar_control
+MOTOR_CTRL_SRC = motor_control
 TX_RTL_SRC = tx_uart
 RX_RTL_SRC = rx_uart
 
@@ -19,6 +20,7 @@ RX_RTL_SRC = rx_uart
 TOP_TB_SRC = top_tb
 SPI_TB_SRC = spi_slave_tb
 SNR_CTRL_TB_SRC = sonar_control_tb
+MOTOR_CTRL_TB_SRC = motor_control_tb
 TX_TB_SRC = tx_tb
 RX_TB_SRC = rx_tb
 
@@ -31,7 +33,8 @@ OBJ_DIR = obj_dir
 # rtl executables
 TOP_RTL_EXEC = ./$(OBJ_DIR)/V$(TOP_RTL_SRC)
 TOP_SPI_EXEC = ./$(OBJ_DIR)/V$(TOP_SPI_SRC)
-SNR_CTRL_EXEC = ./$(OBJ_DIR)/V$(TOP_SPI_SRC)
+SNR_CTRL_EXEC = ./$(OBJ_DIR)/V$(SNR_CTRL_SRC)
+MOTOR_CTRL_EXEC = ./$(OBJ_DIR)/V$(MOTOR_CTRL_SRC)
 TX_RTL_EXEC = ./$(OBJ_DIR)/V$(TX_RTL_SRC)
 RX_RTL_EXEC = ./$(OBJ_DIR)/V$(RX_RTL_SRC)
 
@@ -39,6 +42,7 @@ RX_RTL_EXEC = ./$(OBJ_DIR)/V$(RX_RTL_SRC)
 TOP_TB_EXEC = ./$(OBJ_DIR)/V$(TOP_TB_SRC)
 SPI_TB_EXEC = ./$(OBJ_DIR)/V$(SPI_TB_SRC)
 SNR_CTRL_TB_EXEC = ./$(OBJ_DIR)/V$(SNR_CTRL_TB_SRC)
+MOTOR_CTRL_TB_EXEC = ./$(OBJ_DIR)/V$(MOTOR_CTRL_TB_SRC)
 TX_TB_EXEC = ./$(OBJ_DIR)/V$(TX_TB_SRC)
 RX_TB_EXEC = ./$(OBJ_DIR)/V$(RX_TB_SRC)
 
@@ -65,6 +69,8 @@ lint-rtl-spi:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(TOP_SPI_SRC).v --top spi_slave_top
 lint-rtl-snr:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(SNR_CTRL_SRC).v --top sonar_control
+lint-rtl-motor:
+	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(MOTOR_CTRL_SRC).v --top motor_control
 lint-rtl-rx:
 	verilator --lint-only -I$(RTL_DIR) $(RTL_DISABLE_WARNING) $(RTL_DIR)/$(RX_RTL_SRC).v --top rx_uart
 lint-rtl-tx:

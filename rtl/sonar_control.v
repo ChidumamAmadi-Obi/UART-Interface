@@ -98,7 +98,7 @@ always @(posedge clk_i or negedge rstn_i) begin
     end
 end
 
-assign trigPulsed = (cnt0 == `TEN_US) && (cnt2 == `TEN_US) && (cnt2 == `TEN_US);
+assign trigPulsed = (cnt0 == `TEN_US) && (cnt1 == `TEN_US) && (cnt2 == `TEN_US);
 
 always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time until echo
     if (rstn_i == 1'b0) begin
