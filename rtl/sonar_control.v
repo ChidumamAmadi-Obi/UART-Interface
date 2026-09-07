@@ -20,7 +20,7 @@ module sonar_control(
     input wire echo1_i,
     input wire echo2_i,
     output wire trig_o,
-    output wire rdy_o // pulse when all states return to IDLE, finish bounds checking of distances
+    output wire [2:0] rdy_o // pulse when all states return to IDLE, finish bounds checking of distances
 );
 
 reg [21:0] rawDist0, rawDist1, rawDist2;
@@ -52,6 +52,9 @@ always @(posedge clk_i or negedge rstn_i) begin
         state0 <= `SONAR_CTRL_IDLE;
         state1 <= `SONAR_CTRL_IDLE;
         state2 <= `SONAR_CTRL_IDLE;
+        statep0 <= `SONAR_CTRL_IDLE;
+        statep1 <= `SONAR_CTRL_IDLE;
+        statep2 <= `SONAR_CTRL_IDLE;
         rawDist0 <= 8'b0;
         rawDist1 <= 8'b0;
         rawDist2 <= 8'b0;  
@@ -78,7 +81,7 @@ always @(posedge clk_i or negedge rstn_i) begin
             `SONAR_CTRL_WAIT: begin state2 <= (echo2_i) ? `SONAR_CTRL_ECHO : state2; end
             `SONAR_CTRL_ECHO: begin state2 <= (echo2_i) ? state2 : `SONAR_CTRL_IDLE; end
         endcase
-
+        /*
         if (rawDist0 > `RAW_DIST_MAX) rawDist0 <= `RAW_DIST_MAX; // check for errors (if distance is outside 2-400cm range, see constants.vh)
         else if (rawDist0 < `RAW_DIST_MIN) rawDist0 <= `RAW_DIST_MIN;
         else rawDist0 <= inWAIT0 ? 22'b0 : rawDist0 + {21'b0 , inECHO0}; // get raw distance
@@ -88,6 +91,10 @@ always @(posedge clk_i or negedge rstn_i) begin
         if (rawDist2 > `RAW_DIST_MAX) rawDist2 <= `RAW_DIST_MAX; 
         else if (rawDist2 < `RAW_DIST_MIN) rawDist2 <= `RAW_DIST_MIN;
         else rawDist2 <= inWAIT2 ? 22'b0 : rawDist2 + {21'b0 , inECHO2};
+        */
+        rawDist0 <= inWAIT0 ? 22'b0 : rawDist0 + {21'b0 , inECHO0};
+        rawDist1 <= inWAIT1 ? 22'b0 : rawDist1 + {21'b0 , inECHO1};
+        rawDist2 <= inWAIT2 ? 22'b0 : rawDist2 + {21'b0 , inECHO2};
 
         if ((statep0 == `SONAR_CTRL_ECHO) && (state0 == `SONAR_CTRL_IDLE)) rdy[0] <= 1'b1; // if state went from ECHO to IDLE, rawDist is ready 
         else                                                               rdy[0] <= 1'b0;
@@ -116,7 +123,7 @@ always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time unti
 end
 
 assign trig_o = (inTRIG0 && inTRIG1 && inTRIG2);  // if all states reach TRIG state, send trig pulse out
-assign rdy_o = (rdy == 3'b111) ? 1'b1 : 1'b0; // if all distances ready at the same time, send sig 
+assign rdy_o = rdy;
 assign dist0_o = rdy[0] ? rawDist0 : 22'b0; // only update if ready
 assign dist1_o = rdy[1] ? rawDist1 : 22'b0;
 assign dist2_o = rdy[2] ? rawDist2 : 22'b0;
