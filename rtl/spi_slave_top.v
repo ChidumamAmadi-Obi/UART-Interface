@@ -1,6 +1,8 @@
 `include "constants.vh"
 
-/* refs
+/* notes & refs
+
+    spi slave NEEDS to receives 32 bit data chunks each time or it will break
     https://gist.github.com/nickfox-taterli/fe3713455b0ba55c73b63d45512f2bd9
     https://youtu.be/sHmixFJhr3M?si=WnA5U4PyAfqdaKQL
     https://www.fpga4fun.com/SPI2.html
@@ -12,6 +14,7 @@ module spi_slave_top(
 
     input wire [31:0] data_i, // data input into module
     output wire [31:0] data_o, // data output out of module
+    output wire rdy_o,
 
     input wire sck_i,    // mcu -> fpga (spi clock)
     input wire mosi_i,    // mcu -> fpga (data input)
@@ -53,15 +56,18 @@ always @(posedge clk_i or negedge rstn_i) begin
         mosiR <= {mosiR[0], mosi_i};
         
         if (~csnActive) bitCount <= 5'b0; // if chip not selected do nothing
+
+        // RECEIVE //
         else if (sckPosedge) begin // shift the reg
             bitCount <= bitCount + 1'b1; 
             wordIN <= {wordIN[30:0], mosiD}; 
         end    
 
-        wordReceived <= csnActive && sckPosedge && (bitCount == 32); // update byte receied flag
+        wordReceived <= csnActive && sckPosedge && (bitCount == 31); // update word receied flag
         // always @(posedge clk) if (csnStart) msgCount <= msgCount + 1'b1; // count amount of msgs incoming
 
-        if (csnActive) begin // transmit 
+        // TRANSMIT // 
+        if (csnActive) begin
             if (csnStart) wordOUT <= data_i; 
             // if (csnStart) wordOUT <= msgCount; 
             else if (sckNegedge) begin 
@@ -80,5 +86,7 @@ assign csnEnd      = (csnR[2:1] == 2'b01); // msg end at pos edge
 assign mosiD       = mosiR[1];
 
 assign miso_o = wordOUT[31];
+assign rdy_o = wordReceived;
+assign data_o = (wordReceived) ? wordIN : 32'h0;
 
 endmodule

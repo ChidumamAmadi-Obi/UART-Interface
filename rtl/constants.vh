@@ -4,10 +4,10 @@
 // https://youtu.be/4Y7zG48uHRo?si=Gn_Co_ruN7TMuxRH pid
 // https://youtu.be/4dg_s4zlm9U?si=ri7SOzUWV-scAUAf pid
 
+`timescale 1ns/1ps
+
 `ifndef _CONSTANTS_
 `define _CONSTANTS_
-
-`timescale 1ns/1ps
 
 // UART CONSTANTS
     `define BAUD_RATE 115200 
@@ -39,4 +39,13 @@
     `define TEN_US 9'd270 // amount of clk cycles (at 27MHz) it takes to reach ten microseconds
     `define RAW_DIST_MAX 20'd635295 // max amount of clk cycles echo can be high (for 400cm distance)
     `define RAW_DIST_MIN 20'd3177 // min amount of clk cycles echo can be high (for 2cm distance)
+
+`define CMD_NONE 8'h0
+`define CMD_READ_SONAR_DISTANCE0 8'h1
+`define CMD_READ_SONAR_DISTANCE1 8'h2
+`define CMD_READ_SONAR_DISTANCE2 8'h3
+
+`define ADDR_SONAR_DIST_0 8'h1
+`define ADDR_SONAR_DIST_1 8'h2
+`define ADDR_SONAR_DIST_2 8'h3
 `endif

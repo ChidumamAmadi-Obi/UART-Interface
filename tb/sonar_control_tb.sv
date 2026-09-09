@@ -1,8 +1,5 @@
 `include "tb_config.svh"
 
-parameter SPEED_OF_SOUND = 0.0340; // 0.034 cm/us, or 340/
-parameter SYS_CLK_FREQ_MHZ = 27; // 27MHz
-
 module sonar_control_tb;
 
 logic clk, rstn, en, echo0, echo1, echo2; // inputs
@@ -12,13 +9,6 @@ logic [2:0] rdy;
 
 real expectedDistance0,expectedDistance1,expectedDistance2;
 int actualDistanceRaw0,actualDistanceRaw1,actualDistanceRaw2;
-
-function automatic real clkCycles2us ( input int clkCycles ); // us = cycles/sysClkfreq
-    return $itor(clkCycles)/$itor(SYS_CLK_FREQ_MHZ);
-endfunction
-function automatic real calculateDistance( input int clkCycles );
-    return (SPEED_OF_SOUND * clkCycles2us(clkCycles))/2.0;
-endfunction
 
 sonar_control sonar_controlInstance (
     .clk_i(clk),

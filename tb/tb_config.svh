@@ -16,6 +16,8 @@
 `define HALF_DELAY_FRAMES_TB `DELAY_FRAMES
 
 const time SPI_CLK_PERIOD = 10ns; // idk yet
+parameter SPEED_OF_SOUND = 0.0340; // 0.034 cm/us, or 340/
+parameter SYS_CLK_FREQ_MHZ = 27; // 27MHz
 
 // TASKS ****************************************************************************************************
 
@@ -89,5 +91,62 @@ task automatic receiveUartMsg( // get what message should be and store
 		expectedMsgViaTx[8*i +: 8] = receivedByte;
 	end	
 endtask
+
+// *****
+
+task spiToggleSck;
+ref logic sck;
+    sck = 1'b0; // start on negedge
+    #(SPI_CLK_PERIOD/2);
+    sck = 1'b1;
+    #(SPI_CLK_PERIOD/2);
+endtask
+
+task mcuSend32; // fpga receives from mcu
+ref logic mosi;
+ref logic sck;
+input logic [31:0] data;
+    for (int i=31; i>=0; i--) begin
+        mosi = data[i]; spiToggleSck(sck);
+    end
+endtask
+
+task mcuReceive32;
+ref logic miso;
+ref logic mosi;
+ref logic sck;
+output logic [31:0] data;
+    for (int i=31; i>=0; i--) begin 
+        mosi = 1'b0; 
+        sck = 1'b0; #(SPI_CLK_PERIOD);
+
+        data[i] = miso; 
+        sck = 1'b1; #(SPI_CLK_PERIOD);
+    end
+endtask
+task mcuReceive8;
+ref logic miso;
+ref logic mosi;
+ref logic sck;
+output logic [7:0] data;
+    for (int i=7; i>=0; i--) begin 
+        mosi = 1'b0; 
+        sck = 1'b0; #(SPI_CLK_PERIOD);
+
+        data[i] = miso; 
+        sck = 1'b1; #(SPI_CLK_PERIOD);
+    end
+endtask
+
+
+// FUNCTIONS ****************************************************************************************************
+
+function automatic real clkCycles2us ( input int clkCycles ); // us = cycles/sysClkfreq
+    return $itor(clkCycles)/$itor(SYS_CLK_FREQ_MHZ);
+endfunction
+function automatic real calculateDistance( input int clkCycles );
+    return (SPEED_OF_SOUND * clkCycles2us(clkCycles))/2.0;
+endfunction
+
 
 `endif

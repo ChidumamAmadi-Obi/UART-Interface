@@ -1,3 +1,5 @@
+`include "constants.vh"
+
 module top (
     input wire clk_i,
     input wire rstn_i,
@@ -15,8 +17,6 @@ module top (
     input wire echo2_i,
     output wire trig_o);
 
-`include "constants.vh"
-
 wire [`MSG_BIT_LENGTH-1:0] msg; // for now the fpga is just gonna echo received msg back to pc
 wire msgRdy;
 
@@ -33,34 +33,76 @@ tx_uart txModule(
     .msgOutP(msg)); // msg fpga is sending
 
 reg [31:0] spi_slave_data_out, spi_slave_data_in; // data going in and out of slave module
-reg [21:0] distanceReg0, distanceReg1, distanceReg2; // data coming out of sonar controller
+reg [8:0] spi_master_cmd;
+wire [31:0] spi_slave_data_out_wire;
+wire spi_master_cmd_rdy;
+
+wire [21:0] sonarDistanceWire0, sonarDistanceWire1, sonarDistanceWire2; // data coming out of sonar controller
 wire [2:0] distRdy; // sonar control rdy signals
 
 spi_slave_top spi_slave_topModule(
     .clk_i(clk_i),
     .rstn_i(rstn_i),
     .data_i(spi_slave_data_in),
-    .data_o(spi_slave_data_out),
+    .data_o(spi_slave_data_out_wire),
+    .rdy_o(spi_master_cmd_rdy),
     .sck_i(sck_i),
     .mosi_i(mosi_i),
     .csn_i(csn_i),
     .miso_o(miso_o));
+cmd_decoder cmd_decoderModule(
+    .clk_i(clk_i),
+    .rstn_i(rstn_i),
+    .cmd_i(spi_slave_data_out),
+    .address_o(spi_master_cmd[7:0]),
+    .rw_o(spi_master_cmd[8]) // 1: read, 0: write
+);
 
 sonar_control sonar_controlModule(
     .clk_i(clk_i),
     .rstn_i(rstn_i),
     .en_i(1'b1), // always enabled for now
-    .dist0_o(distance0),
-    .dist1_o(distance1),
-    .dist2_o(distance2),
+    .dist0_o(sonarDistanceWire0),
+    .dist1_o(sonarDistanceWire1),
+    .dist2_o(sonarDistanceWire2),
     .echo0_i(echo0_i),
     .echo1_i(echo1_i),
     .echo2_i(echo2_i),
     .trig_o(trig_o),
     .rdy_o(distRdy));
 
+always @(posedge clk_i or negedge rstn_i or posedge spi_master_cmd_rdy) begin 
+    if (rstn_i == 1'b0) begin 
+        spi_slave_data_out = 32'h0;
+    end else if (spi_master_cmd_rdy) begin 
+        spi_slave_data_out = spi_slave_data_out_wire;
+    end
+end
 
 // REGISTER FILE 
+reg [21:0] distanceReg0, distanceReg1, distanceReg2;
 
+// sensor modules write data to registers
+always @(posedge clk_i or negedge rstn_i or posedge distRdy) begin 
+    if (rstn_i == 1'b0) begin 
+        distanceReg0 <= 22'h0;
+        distanceReg1 <= 22'h0;
+        distanceReg2 <= 22'h0;
+    end
+    if (distRdy[0]) distanceReg0 <= sonarDistanceWire0;
+    if (distRdy[1]) distanceReg1 <= sonarDistanceWire1;
+    if (distRdy[2]) distanceReg2 <= sonarDistanceWire2;
+end
 
+// spi module can read data in registers
+always @* begin
+    if (spi_master_cmd[8]) begin // reading
+        case (spi_master_cmd[7:0]) 
+            `ADDR_SONAR_DIST_0: spi_slave_data_in = distanceReg0;
+            `ADDR_SONAR_DIST_1: spi_slave_data_in = distanceReg1;
+            `ADDR_SONAR_DIST_2: spi_slave_data_in = distanceReg2;
+            default: spi_slave_data_in = 32'h0;
+        endcase
+    end
+end
 endmodule
