@@ -8,8 +8,8 @@ logic txOut;
 
 top topInstance (
     .clk(clkIn),
-    .rxUart(rxIn),
-    .txUart(txOut));
+    .rxUart_i(rxIn),
+    .txUart_o(txOut));
 
 always #1 clkIn = ~clkIn;
 initial begin

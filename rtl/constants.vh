@@ -39,11 +39,4 @@
     `define TEN_US 9'd270 // amount of clk cycles (at 27MHz) it takes to reach ten microseconds
     `define RAW_DIST_MAX 20'd635295 // max amount of clk cycles echo can be high (for 400cm distance)
     `define RAW_DIST_MIN 20'd3177 // min amount of clk cycles echo can be high (for 2cm distance)
-
-// MOTOR CONTROL CONSTANTS 
-    `define MOTORS_STOP 2'b00
-    `define MOTORS_LEFT 2'b01
-    `define MOTORS_RIGHT 2'b01
-    `define MOTORS_FORWARD 2'b11
-
 `endif

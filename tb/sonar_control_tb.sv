@@ -98,10 +98,6 @@ end
 endmodule
 
 /* notes
-
-add rdy signal, only output distances when rdy is sctivated and distance is fully calculated
-test this along with different distance measurements accross sensors in test bench 
-
 https://www.rfwireless-world.com/calculators/ultrasonic-sensor-calculator
 https://chipverify.com/verilog/verilog-conversion-functions
 */
