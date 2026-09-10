@@ -55,13 +55,13 @@ task testSonarControl;
     #(20);
     $display("==================================================");
     $display("RAW DISTANCES IN REG FILE [0x%0h, 0x%0h, 0x%0h]",
-    topInstance.distanceReg0,
-    topInstance.distanceReg1,
-    topInstance.distanceReg2);
+    topInstance.sonarReg0,
+    topInstance.sonarReg1,
+    topInstance.sonarReg2);
     $display("    DISTANCES IN REG FILE [%.1f, %.1f, %.1f]",
-    calculateDistance(topInstance.distanceReg0),
-    calculateDistance(topInstance.distanceReg1),
-    calculateDistance(topInstance.distanceReg2));
+    calculateDistance(topInstance.sonarReg0),
+    calculateDistance(topInstance.sonarReg1),
+    calculateDistance(topInstance.sonarReg2));
 endtask
 
 task testSpiSlave;
