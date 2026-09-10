@@ -72,7 +72,7 @@ sonar_control sonar_controlModule(
     .rdy_o(distRdy));
 
 always @(posedge clk_i or negedge rstn_i or posedge spiMasterCmdRdy) begin 
-    if (rstn_i == 1'b0) begin 
+    if (~rstn_i) begin 
         spiSlaveOut = 32'h0;
     end else if (spiMasterCmdRdy) begin 
         spiSlaveOut = spiSlaveOut_wire;
@@ -81,13 +81,20 @@ end
 
 // REGISTER FILE 
 reg [21:0] sonarReg0, sonarReg1, sonarReg2; // store measured sonar distances
+reg [31:0] statusReg; // MCU status register 
+/* status register bits
+statusReg[0] connection ok
+statudReg[1] mpu initialized
+*/ 
+
 
 // sensor modules write data to registers
 always @(posedge clk_i or negedge rstn_i or posedge distRdy) begin 
-    if (rstn_i == 1'b0) begin 
+    if (~rstn_i) begin 
         sonarReg0 <= 22'h0;
         sonarReg1 <= 22'h0;
         sonarReg2 <= 22'h0;
+        statusReg <= 32'h0;
     end
     if (distRdy[0]) sonarReg0 <= sonarDistanceWire0;
     if (distRdy[1]) sonarReg1 <= sonarDistanceWire1;
