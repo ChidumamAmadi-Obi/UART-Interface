@@ -53,23 +53,54 @@ task testSonarControl;
     echo[2] = 1'b0;
 
     #(20);
-
-    $display("RAW DISTANCES IN REG FILE [%d, %d, %d]",
+    $display("==================================================");
+    $display("RAW DISTANCES IN REG FILE [0x%0h, 0x%0h, 0x%0h]",
     topInstance.distanceReg0,
     topInstance.distanceReg1,
     topInstance.distanceReg2);
-    $display("    DISTANCES IN REG FILE [%f, %f, %f]",
+    $display("    DISTANCES IN REG FILE [%.1f, %.1f, %.1f]",
     calculateDistance(topInstance.distanceReg0),
     calculateDistance(topInstance.distanceReg1),
     calculateDistance(topInstance.distanceReg2));
 endtask
 
 task testSpiSlave;
-logic [31:0] dataOut;
-    mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE0, 24'h000000 }); // send cmd to read from sonar reg 0
-    mcuReceive32(miso, mosi, sck, dataOut);
+    logic [31:0] dataOut;
 
-    $display("RECEVIED: %d", dataOut);
+    $display("==================================================");
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE0, 24'h000000}); // send cmd to read from sonar reg 0
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_SONAR_DISTANCE0, 24'h000000});
+    csn = 1'b1;
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H", dataOut);
+    csn = 1'b1; 
+    #(10);
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE1, 24'h000000}); // send cmd to read from sonar reg 0
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_SONAR_DISTANCE1, 24'h000000});
+    csn = 1'b1;
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H", dataOut);
+    csn = 1'b1; 
+    #(10);
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE2, 24'h000000}); // send cmd to read from sonar reg 0
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_SONAR_DISTANCE2, 24'h000000});
+    csn = 1'b1;
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H", dataOut);
+    csn = 1'b1;      
+    #(10);   
 endtask
 
 task testUart;
@@ -101,7 +132,7 @@ endtask
 always #1 clk = ~clk;
 initial begin
     init;
-    // monitor("%d", topInstance.spi_slave_data_out_wire); 
+
     testSonarControl; // measure distance once with one trig pulse
     testSpiSlave;
     // testUart;
