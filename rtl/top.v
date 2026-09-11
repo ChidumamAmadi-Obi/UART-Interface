@@ -83,22 +83,23 @@ end
 reg [21:0] sonarReg0, sonarReg1, sonarReg2; // store measured sonar distances
 reg [31:0] statusReg; // MCU status register 
 /* status register bits
-statusReg[0] connection ok
-statudReg[1] mpu initialized
-*/ 
+    statusReg[0] connection ok
+    statudReg[1] mpu initialized
+    */ 
 
 
 // sensor modules write data to registers
-always @(posedge clk_i or negedge rstn_i or posedge distRdy) begin 
+always @(posedge clk_i or negedge rstn_i) begin 
     if (~rstn_i) begin 
         sonarReg0 <= 22'h0;
         sonarReg1 <= 22'h0;
         sonarReg2 <= 22'h0;
         statusReg <= 32'h0;
+    end else begin 
+        if (distRdy[0]) sonarReg0 <= sonarDistanceWire0;
+        if (distRdy[1]) sonarReg1 <= sonarDistanceWire1;
+        if (distRdy[2]) sonarReg2 <= sonarDistanceWire2;        
     end
-    if (distRdy[0]) sonarReg0 <= sonarDistanceWire0;
-    if (distRdy[1]) sonarReg1 <= sonarDistanceWire1;
-    if (distRdy[2]) sonarReg2 <= sonarDistanceWire2;
 end
 
 // spi module can read data in registers
