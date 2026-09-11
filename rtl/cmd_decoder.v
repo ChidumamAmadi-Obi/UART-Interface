@@ -36,6 +36,10 @@ always @* begin
                 address = `ADDR_SONAR_DIST_2; 
                 rw = 1'b1;
             end
+            `CMD_READ_TEST_REG: begin 
+                address = `ADDR_TEST_REG;
+                rw = 1'b1;
+            end
             default: begin  
                 address = 8'h0; 
                 rw = 1'b0;    

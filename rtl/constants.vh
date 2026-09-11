@@ -45,9 +45,11 @@
 `define CMD_READ_SONAR_DISTANCE1 8'h2
 `define CMD_READ_SONAR_DISTANCE2 8'h3
 `define CMD_READ_STATUS_REG 8'h4
+`define CMD_READ_TEST_REG 8'h5
 
 `define ADDR_SONAR_DIST_0 8'h1
 `define ADDR_SONAR_DIST_1 8'h2
 `define ADDR_SONAR_DIST_2 8'h3
 `define ADDR_STATUS_REG 8'h4
+`define ADDR_TEST_REG 8'h4
 `endif

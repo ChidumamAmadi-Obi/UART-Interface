@@ -81,12 +81,12 @@ end
 
 // REGISTER FILE 
 reg [21:0] sonarReg0, sonarReg1, sonarReg2; // store measured sonar distances
+reg [31:0] testReg;
 reg [31:0] statusReg; // MCU status register 
 /* status register bits
     statusReg[0] connection ok
     statudReg[1] mpu initialized
     */ 
-
 
 // sensor modules write data to registers
 always @(posedge clk_i or negedge rstn_i) begin 
@@ -95,7 +95,9 @@ always @(posedge clk_i or negedge rstn_i) begin
         sonarReg1 <= 22'h0;
         sonarReg2 <= 22'h0;
         statusReg <= 32'h0;
+        testReg <= 32'h0;
     end else begin 
+        testReg <= 32'hDEADBEEF;
         if (distRdy[0]) sonarReg0 <= sonarDistanceWire0;
         if (distRdy[1]) sonarReg1 <= sonarDistanceWire1;
         if (distRdy[2]) sonarReg2 <= sonarDistanceWire2;        
@@ -109,6 +111,7 @@ always @* begin
             `ADDR_SONAR_DIST_0: spiSlaveIn = sonarReg0;
             `ADDR_SONAR_DIST_1: spiSlaveIn = sonarReg1;
             `ADDR_SONAR_DIST_2: spiSlaveIn = sonarReg2;
+            `ADDR_TEST_REG: spiSlaveIn = testReg;
             default: spiSlaveIn = 32'h0;
         endcase
     end

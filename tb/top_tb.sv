@@ -70,6 +70,19 @@ task testSpiSlave;
     $display("==================================================");
 
     csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_TEST_REG, 24'h000000}); // send cmd to read from sonar reg 0
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_TEST_REG, 24'h000000});
+    csn = 1'b1;
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H", dataOut);
+    csn = 1'b1; 
+    #(10);
+
+
+
+    csn = 1'b0;
     mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE0, 24'h000000}); // send cmd to read from sonar reg 0
     $display("MCU SENT CMD: 0x%h",{`CMD_READ_SONAR_DISTANCE0, 24'h000000});
     csn = 1'b1;
