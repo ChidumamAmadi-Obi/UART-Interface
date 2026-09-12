@@ -9,6 +9,8 @@ logic sck, mosi, miso, csn;
 logic [2:0] echo;
 logic trig;
 
+int echoPulseLen;
+
 top topInstance (
     .clk_i(clk),
     .rstn_i(rstn),
@@ -27,6 +29,7 @@ top topInstance (
     .trig_o(trig));
 
 task init;
+    echoPulseLen = `RAW_DIST_MIN;
     clk = 1'b0;
     rstn = 1'b1;
     sck = 1'b0;
@@ -37,31 +40,34 @@ task init;
 endtask
 
 task testSonarControl;
-    #(`TEN_US*2); 
+input int echoTime0;
+input int echoTime1;
+input int echoTime2;
     #(20); 
-
     echo[0] = 1'b1;
-    #((`RAW_DIST_MAX)*2); 
+    #(echoTime0*2); 
     echo[0] = 1'b0;
 
     echo[1] = 1'b1;
-    #((`RAW_DIST_MIN)*2);
+    #(echoTime1*2);
     echo[1] = 1'b0;   
  
     echo[2] = 1'b1;
-    #((`RAW_DIST_MIN+1750)*2);
+    #(echoTime2*2);
     echo[2] = 1'b0;
 
     #(20);
     $display("==================================================");
-    $display("RAW DISTANCES IN REG FILE [0x%0h, 0x%0h, 0x%0h]",
-    topInstance.sonarReg0,
-    topInstance.sonarReg1,
-    topInstance.sonarReg2);
-    $display("    DISTANCES IN REG FILE [%.1f, %.1f, %.1f]",
-    calculateDistance(topInstance.sonarReg0),
-    calculateDistance(topInstance.sonarReg1),
-    calculateDistance(topInstance.sonarReg2));
+    $display("RAW DISTANCES IN REG FILE [0x%0h, 0x%0h, 0x%0h] %.1fns",
+        topInstance.sonarReg0,
+        topInstance.sonarReg1,
+        topInstance.sonarReg2,
+        $realtime);
+    $display("    DISTANCES IN REG FILE [%.1f, %.1f, %.1f] %.1fns",
+        calculateDistance(topInstance.sonarReg0),
+        calculateDistance(topInstance.sonarReg1),
+        calculateDistance(topInstance.sonarReg2), 
+        $realtime);
 endtask
 
 task testSpiSlave;
@@ -76,7 +82,7 @@ task testSpiSlave;
     #(10);
     csn = 1'b0;
     mcuReceive32(miso, mosi, sck, dataOut);
-    $display("MCU RECEIVED: 0x%H", dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
     csn = 1'b1; 
     #(10);
 
@@ -89,7 +95,7 @@ task testSpiSlave;
     #(10);
     csn = 1'b0;
     mcuReceive32(miso, mosi, sck, dataOut);
-    $display("MCU RECEIVED: 0x%H", dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
     csn = 1'b1; 
     #(10);
 
@@ -100,7 +106,7 @@ task testSpiSlave;
     #(10);
     csn = 1'b0;
     mcuReceive32(miso, mosi, sck, dataOut);
-    $display("MCU RECEIVED: 0x%H", dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
     csn = 1'b1; 
     #(10);
 
@@ -111,7 +117,7 @@ task testSpiSlave;
     #(10);
     csn = 1'b0;
     mcuReceive32(miso, mosi, sck, dataOut);
-    $display("MCU RECEIVED: 0x%H", dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
     csn = 1'b1;      
     #(10);   
 endtask
@@ -141,12 +147,18 @@ task testUart;
     sendUartByte(250, topInstance.rxModule.rxBitNumber, rxIn); // 15
     #(`DELAY_FRAMES_TB*200);
 endtask
-
+always @(negedge topInstance.trig_o) begin 
+    echoPulseLen+=100;
+    testSonarControl(echoPulseLen+100, echoPulseLen+200, echoPulseLen+300);
+end
 always #1 clk = ~clk;
 initial begin
-    init;
-
-    testSonarControl; // measure distance once with one trig pulse
+    init;   
+    #(`TRIG_INTERVAL*2);
+    testSpiSlave;
+    #(`TRIG_INTERVAL*2);
+    testSpiSlave;
+    #(`TRIG_INTERVAL*2);
     testSpiSlave;
     // testUart;
     

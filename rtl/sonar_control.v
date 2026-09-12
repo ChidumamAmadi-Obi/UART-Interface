@@ -27,6 +27,7 @@ reg [21:0] rawDist0, rawDist1, rawDist2;
 reg [9:0] cnt0, cnt1, cnt2; // holds amount of clk cycles it takes for echo to get back
 reg [2:0] state0, state1, state2, statep0, statep1, statep2;
 reg trigPulsed;
+wire trigRdy;
 
 reg [2:0] rdy; 
 wire inIDLE0, inIDLE1, inIDLE2; // for tracking states
@@ -47,6 +48,12 @@ assign inECHO0 = (state0 == `SONAR_CTRL_ECHO);
 assign inECHO1 = (state1 == `SONAR_CTRL_ECHO);
 assign inECHO2 = (state2 == `SONAR_CTRL_ECHO);
 
+trig_timer trig_timerModule(
+    .clk_i(clk_i),
+    .rstn_i(rstn_i),
+    .timerDuration_i(`TRIG_INTERVAL),
+    .trigRdy_o(trigRdy));
+
 always @(posedge clk_i or negedge rstn_i) begin 
     if (rstn_i == 1'b0) begin
         state0 <= `SONAR_CTRL_IDLE;
@@ -64,19 +71,19 @@ always @(posedge clk_i or negedge rstn_i) begin
         statep1 <= state1;
         statep2 <= state2; 
         case(state0)
-            `SONAR_CTRL_IDLE: begin state0 <= (en_i) ? `SONAR_CTRL_TRIG : state0; end
+            `SONAR_CTRL_IDLE: begin state0 <= (en_i && trigRdy) ? `SONAR_CTRL_TRIG : state0; end
             `SONAR_CTRL_TRIG: begin state0 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state0; end
             `SONAR_CTRL_WAIT: begin state0 <= (echo0_i) ? `SONAR_CTRL_ECHO : state0; end
             `SONAR_CTRL_ECHO: begin state0 <= (echo0_i) ? state0 : `SONAR_CTRL_IDLE; end
         endcase
         case(state1)
-            `SONAR_CTRL_IDLE: begin state1 <= (en_i) ? `SONAR_CTRL_TRIG : state1; end 
+            `SONAR_CTRL_IDLE: begin state1 <= (en_i && trigRdy) ? `SONAR_CTRL_TRIG : state1; end 
             `SONAR_CTRL_TRIG: begin state1 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state1; end 
             `SONAR_CTRL_WAIT: begin state1 <= (echo1_i) ? `SONAR_CTRL_ECHO : state1; end
             `SONAR_CTRL_ECHO: begin state1 <= (echo1_i) ? state1 : `SONAR_CTRL_IDLE; end
         endcase
         case(state2)
-            `SONAR_CTRL_IDLE: begin state2 <= (en_i) ? `SONAR_CTRL_TRIG : state2; end
+            `SONAR_CTRL_IDLE: begin state2 <= (en_i && trigRdy) ? `SONAR_CTRL_TRIG : state2; end
             `SONAR_CTRL_TRIG: begin state2 <= (trigPulsed) ? `SONAR_CTRL_WAIT : state2; end 
             `SONAR_CTRL_WAIT: begin state2 <= (echo2_i) ? `SONAR_CTRL_ECHO : state2; end
             `SONAR_CTRL_ECHO: begin state2 <= (echo2_i) ? state2 : `SONAR_CTRL_IDLE; end
@@ -128,3 +135,28 @@ assign dist0_o = rdy[0] ? rawDist0 : 22'b0; // only update if ready
 assign dist1_o = rdy[1] ? rawDist1 : 22'b0;
 assign dist2_o = rdy[2] ? rawDist2 : 22'b0;
 endmodule 
+
+module trig_timer( // counter to have trig pulse on a set interval
+    input wire clk_i,
+    input wire rstn_i,
+
+    input wire [31:0] timerDuration_i, // interval
+    output wire trigRdy_o);
+
+reg [31:0] timerDuration, counter;
+
+always @(posedge clk_i or negedge rstn_i) begin 
+    if (rstn_i == 0) begin 
+        timerDuration <= 32'h0;
+        counter <= 32'h1;
+    end else begin 
+        if (counter == timerDuration) begin 
+            counter <= 32'h1;
+        end else begin 
+            timerDuration <= timerDuration_i;
+            counter <= counter + 1;     
+        end
+    end
+end
+assign trigRdy_o = (counter == timerDuration);
+endmodule
