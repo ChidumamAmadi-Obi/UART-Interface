@@ -55,8 +55,10 @@ input int echoTime2;
     echo[2] = 1'b1;
     #(echoTime2*2);
     echo[2] = 1'b0;
-
     #(20);
+
+    $display("'topInstance.sonar_controlModule' MEASURED DISTANCE AT %.1fns", $realtime);
+    /*
     $display("==================================================");
     $display("RAW DISTANCES IN REG FILE [0x%0h, 0x%0h, 0x%0h] %.1fns",
         topInstance.sonarReg0,
@@ -67,27 +69,14 @@ input int echoTime2;
         calculateDistance(topInstance.sonarReg0),
         calculateDistance(topInstance.sonarReg1),
         calculateDistance(topInstance.sonarReg2), 
-        $realtime);
+        $realtime);    
+    */
 endtask
 
-task testSpiSlave;
-    logic [31:0] dataOut;
-
+task testSPIReadSonarRegisters;
+static logic [31:0] dataOut = 0;
     $display("==================================================");
-
-    csn = 1'b0;
-    mcuSend32(mosi, sck, {`CMD_READ_TEST_REG, 24'h000000}); // send cmd to read from sonar reg 0
-    $display("MCU SENT CMD: 0x%h",{`CMD_READ_TEST_REG, 24'h000000});
-    csn = 1'b1;
     #(10);
-    csn = 1'b0;
-    mcuReceive32(miso, mosi, sck, dataOut);
-    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
-    csn = 1'b1; 
-    #(10);
-
-
-
     csn = 1'b0;
     mcuSend32(mosi, sck, {`CMD_READ_SONAR_DISTANCE0, 24'h000000}); // send cmd to read from sonar reg 0
     $display("MCU SENT CMD: 0x%h",{`CMD_READ_SONAR_DISTANCE0, 24'h000000});
@@ -120,6 +109,51 @@ task testSpiSlave;
     $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
     csn = 1'b1;      
     #(10);   
+    $display("==================================================");
+endtask
+task testSPISlave;
+    static logic [31:0] dataOut = 0;
+
+    $display("==================================================");
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_TEST_REG, 24'h000000}); // send cmd to test reg
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_TEST_REG, 24'h000000});
+    csn = 1'b1;
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
+    csn = 1'b1; 
+
+    #(100);
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_STATUS_REG, 24'h000000}); // send cmd to read from status reg
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_STATUS_REG, 24'h000000});
+    csn = 1'b1;    
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
+    csn = 1'b1; 
+    #(10);
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_WRITE_STATUS_REG, 8'h00 , 16'hB00B});
+    $display("MCU SENT CMD: 0x%h",{`CMD_WRITE_STATUS_REG, 8'h00, 16'hB00B});
+    csn = 1'b1;    
+    #(10);
+
+    csn = 1'b0;
+    mcuSend32(mosi, sck, {`CMD_READ_STATUS_REG, 24'h000000});
+    $display("MCU SENT CMD: 0x%h",{`CMD_READ_STATUS_REG, 24'h000000});
+    csn = 1'b1;    
+    #(10);
+    csn = 1'b0;
+    mcuReceive32(miso, mosi, sck, dataOut);
+    $display("MCU RECEIVED: 0x%H %.1fns", dataOut, $realtime);
+    csn = 1'b1;      
+    $display("==================================================");
 endtask
 
 task testUart;
@@ -154,12 +188,16 @@ end
 always #1 clk = ~clk;
 initial begin
     init;   
+
+    #(`TRIG_INTERVAL*2); //  test reading from sonar registers
+    testSPIReadSonarRegisters;
     #(`TRIG_INTERVAL*2);
-    testSpiSlave;
+    testSPIReadSonarRegisters;
     #(`TRIG_INTERVAL*2);
-    testSpiSlave;
-    #(`TRIG_INTERVAL*2);
-    testSpiSlave;
+    testSPIReadSonarRegisters;
+
+    testSPISlave; //  test reading and writing from status and test registers
+
     // testUart;
     
     $finish;

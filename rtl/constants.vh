@@ -40,16 +40,20 @@
     `define RAW_DIST_MAX 20'd635295 // max amount of clk cycles echo can be high (for 400cm distance)
     `define RAW_DIST_MIN 20'd3177 // min amount of clk cycles echo can be high (for 2cm distance)
 
-`define CMD_NONE 8'h0
-`define CMD_READ_SONAR_DISTANCE0 8'h1
-`define CMD_READ_SONAR_DISTANCE1 8'h2
-`define CMD_READ_SONAR_DISTANCE2 8'h3
-`define CMD_READ_STATUS_REG 8'h4
-`define CMD_READ_TEST_REG 8'h5
+`define CMD_NONE 8'h00
+`define CMD_READ_SONAR_DISTANCE0 8'h01
+`define CMD_READ_SONAR_DISTANCE1 8'h02
+`define CMD_READ_SONAR_DISTANCE2 8'h03
+`define CMD_READ_TEST_REG 8'h04
 
-`define ADDR_SONAR_DIST_0 8'h1
-`define ADDR_SONAR_DIST_1 8'h2
-`define ADDR_SONAR_DIST_2 8'h3
-`define ADDR_STATUS_REG 8'h4
-`define ADDR_TEST_REG 8'h4
+`define CMD_READ_STATUS_REG 8'h05
+`define CMD_WRITE_STATUS_REG 8'h50
+
+`define ADDR_SONAR_DIST_0 8'h01
+`define ADDR_SONAR_DIST_1 8'h02
+`define ADDR_SONAR_DIST_2 8'h03
+`define ADDR_TEST_REG 8'h04
+`define ADDR_STATUS_REG 8'h05
+
+// 0x 50 10
 `endif
