@@ -55,7 +55,7 @@ trig_timer trig_timerModule(
     .trigRdy_o(trigRdy));
 
 always @(posedge clk_i or negedge rstn_i) begin 
-    if (rstn_i == 1'b0) begin
+    if (~rstn_i) begin
         state0 <= `SONAR_CTRL_IDLE;
         state1 <= `SONAR_CTRL_IDLE;
         state2 <= `SONAR_CTRL_IDLE;
@@ -115,7 +115,7 @@ end
 assign trigPulsed = (cnt0 == `TEN_US) && (cnt1 == `TEN_US) && (cnt2 == `TEN_US);
 
 always@(posedge clk_i or negedge rstn_i) begin // Counter for tracking time until echo
-    if (rstn_i == 1'b0) begin
+    if (~rstn_i) begin
         cnt0 <= 10'd0;
         cnt1 <= 10'd0;
         cnt2 <= 10'd0;
@@ -146,7 +146,7 @@ module trig_timer( // counter to have trig pulse on a set interval
 reg [31:0] timerDuration, counter;
 
 always @(posedge clk_i or negedge rstn_i) begin 
-    if (rstn_i == 0) begin 
+    if (~rstn_i) begin 
         timerDuration <= 32'h0;
         counter <= 32'h1;
     end else begin 

@@ -17,7 +17,7 @@ reg [7:0] address;
 reg rw;
 
 always @* begin
-    if (rstn_i == 1'b0) begin
+    if (~rstn_i) begin
         address = 8'h0; 
         rw = 1'b0;
         data = 16'b0;

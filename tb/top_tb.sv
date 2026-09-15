@@ -112,7 +112,7 @@ static logic [31:0] dataOut = 0;
     $display("==================================================");
 endtask
 task testSPISlave;
-    static logic [31:0] dataOut = 0;
+static logic [31:0] dataOut = 0;
 
     $display("==================================================");
     csn = 1'b0;

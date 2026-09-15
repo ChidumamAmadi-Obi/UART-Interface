@@ -45,7 +45,6 @@
 `define CMD_READ_SONAR_DISTANCE1 8'h02
 `define CMD_READ_SONAR_DISTANCE2 8'h03
 `define CMD_READ_TEST_REG 8'h04
-
 `define CMD_READ_STATUS_REG 8'h05
 `define CMD_WRITE_STATUS_REG 8'h50
 
@@ -55,5 +54,4 @@
 `define ADDR_TEST_REG 8'h04
 `define ADDR_STATUS_REG 8'h05
 
-// 0x 50 10
 `endif

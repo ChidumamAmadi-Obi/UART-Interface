@@ -36,10 +36,9 @@ reg wordReceived;
 
 // handle sending data
 reg [31:0] wordOUT;
-// reg [32-1:0] msgCount;
 
 always @(posedge clk_i or negedge rstn_i) begin 
-    if (rstn_i == 1'b0) begin
+    if (~rstn_i) begin
         sckR        <= 0;
         csnR         <= 0;
         mosiR        <= 0;
@@ -47,7 +46,6 @@ always @(posedge clk_i or negedge rstn_i) begin
         wordIN       <= 0;
         wordOUT      <= 0;
         wordReceived <= 0;
-        // msgCount  <= 0;     
 
 
     end else begin // filter incomming raw signals
@@ -64,7 +62,6 @@ always @(posedge clk_i or negedge rstn_i) begin
         end    
 
         wordReceived <= csnActive && sckPosedge && (bitCount == 31); // update word receied flag
-        // always @(posedge clk) if (csnStart) msgCount <= msgCount + 1'b1; // count amount of msgs incoming
 
         // TRANSMIT // 
         if (csnActive) begin
